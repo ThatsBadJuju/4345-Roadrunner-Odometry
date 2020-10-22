@@ -3,11 +3,15 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class Shooter {
     private DcMotor flywheel;
+    private Telemetry telemetry;
     private double power;
-    public Shooter(DcMotor flywheel) {
+    public Shooter(DcMotor flywheel, Telemetry telemetry) {
         this.flywheel = flywheel;
+        this.telemetry = telemetry;
         power = 0;
     }
 
@@ -62,5 +66,9 @@ public class Shooter {
     public void reset() {
         stop();
         power = 0;
+    }
+
+    public double getPower() {
+        return power;
     }
 }

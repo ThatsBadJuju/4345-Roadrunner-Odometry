@@ -11,11 +11,13 @@ public class ShooterTeleop extends OpMode {
 
     @Override
     public void init() {
-        shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
+        shooter = new Shooter(hardwareMap.dcMotor.get("shooter"), telemetry);
     }
 
     @Override
     public void loop() {
         shooter.controls(gamepad1);
+        telemetry.addData("Current power", shooter.getPower());
+        telemetry.update();
     }
 }
