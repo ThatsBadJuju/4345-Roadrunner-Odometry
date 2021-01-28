@@ -19,10 +19,10 @@ public class Intake {
 
     public void controls(Gamepad gp) {
         if(gp.dpad_down) {
-            dropIntake();
+            //dropIntake();
         }
         else if(gp.dpad_up) {
-            liftIntake();
+            //liftIntake();
         }
 
         if(gp.dpad_left) {

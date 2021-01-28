@@ -20,7 +20,7 @@ public class CorrectTeleOp extends OpMode {
     public void init() {
         //TODO: Initialize Drivetrain Object
         drivetrain = new Drivetrain(hardwareMap.dcMotor.get("frontLeftMotor"), hardwareMap.dcMotor.get("backLeftMotor"), hardwareMap.dcMotor.get("frontRightMotor"), hardwareMap.dcMotor.get("backRightMotor"), false, telemetry, hardwareMap);
-        intake = new Intake(hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
+        //intake = new Intake(hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
         shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
     }
 
@@ -34,7 +34,7 @@ public class CorrectTeleOp extends OpMode {
     public void loop() {
         //TODO: Controls
         drivetrain.controls(gamepad1);
-        intake.controls(gamepad1);
+        //intake.controls(gamepad1);
         shooter.controls(gamepad1);
     }
 

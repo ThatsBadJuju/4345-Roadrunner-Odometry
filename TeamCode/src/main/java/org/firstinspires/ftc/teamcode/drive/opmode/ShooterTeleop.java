@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
 import org.firstinspires.ftc.teamcode.drive.ShooterTest;
 
-@TeleOp(name = "Shooter", group = "4345-tests" )
+@TeleOp(name = "ShooterTest", group = "4345-tests" )
 public class ShooterTeleop extends OpMode {
     public ShooterTest shooter;
 
