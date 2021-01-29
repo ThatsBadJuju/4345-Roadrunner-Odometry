@@ -37,6 +37,11 @@ public class Camera {
     private final float CAMERA_Y_DISPLACEMENT = 8.0f * mmPerInch; // 8 inches from center
     private final float CAMERA_Z_DISPLACEMENT = 2.0f * mmPerInch; // 2 inches above ground
 
+    private final float IDEAL_X_POS = 0.0f;
+    private final float IDEAL_Y_POS = 0.0f;
+    private final float IDEAL_Z_POS = 0.0f;
+    private final String TARGET_IMAGE = "Red Alliance Goal";
+
     // conversion factors (inches to mm and other important variables to convert
     private static final float mmPerInch        = 25.4f;
     private static final float mmTargetHeight   = 6 * mmPerInch;
@@ -169,7 +174,7 @@ public class Camera {
         // Activates tfod model (zoom is to ensure that the model can be more accurate in detecting)
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(2, 1.78); // values can change
+            // tfod.setZoom(2, 1.78); // values can change (don't zoom cuz not necessary)
         }
         // Activates field localization
         targetsUltimateGoal.activate();
@@ -182,7 +187,7 @@ public class Camera {
     }
 
     // run during "loop," and checks for objects that can be detected
-    public void checkTFODObjects(Telemetry tele) {
+    public int checkTFODObjects(Telemetry tele) {
         // object detection
         if (tfod != null) {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions(); // list of recognized objects (4-stack of disks or 1-stack of disc)
@@ -198,18 +203,28 @@ public class Camera {
                     tele.addData(String.format("right,bottom (%d)", i), "%.03f , %.03f",
                             recognition.getRight(), recognition.getBottom());
                 }
+
+                // check if disc is 4 stack or single
+                if(updatedRecognitions.get(0).getLabel().equals("Quad")) return 4;
+                else if(updatedRecognitions.get(0).getLabel().equals("Single")) return 1;
             }
+            // No objects recognized
+            return 0;
         }
+        // something went wrong elsewhere
+        return -1;
     }
 
     public void checkVuforiaObjects(Telemetry tele) {
         // field localization
         targetVisible = false; // initially no targets visible
+        String image = "";
         for(VuforiaTrackable trackable: allTrackables) { // runs through all images
             // if statement checks if the current image is visible in the camera
             if(((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 tele.addData("Visible Target", trackable.getName()); // if visible, print out data of it
                 targetVisible = true;
+                image = trackable.getName();
 
                 // use the image to get the location of the robot, and if you can update the location (if robot mobed)
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
@@ -230,6 +245,12 @@ public class Camera {
             Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES); // rotation matrix of robot
             tele.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f",
                     rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+
+//            if(image.equals(TARGET_IMAGE)) {
+//                tele.addData("Distance from ideal (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+//                        IDEAL_X_POS-(translation.get(0)/mmPerInch), IDEAL_Y_POS-(translation.get(1)/mmPerInch),
+//                                IDEAL_Z_POS-(translation.get(2)/mmPerInch));
+//            }
         } else {
             tele.addData("Visible Target", "none");
         }
