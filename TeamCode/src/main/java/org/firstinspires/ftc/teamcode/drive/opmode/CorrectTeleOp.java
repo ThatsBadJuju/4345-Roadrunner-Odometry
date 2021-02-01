@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.Arm;
+import org.firstinspires.ftc.teamcode.drive.Camera;
 import org.firstinspires.ftc.teamcode.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
@@ -18,6 +19,7 @@ public class CorrectTeleOp extends OpMode {
     public Intake intake;
     public Shooter shooter;
     public Arm arm;
+    public Camera camera;
 
     @Override
     public void init() {
@@ -26,11 +28,13 @@ public class CorrectTeleOp extends OpMode {
         intake = new Intake(hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
         shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
+        camera = new Camera(hardwareMap);
     }
 
     @Override
     public void start() {
         super.start();
+        camera.activate();
         telemetry.addLine("Robot started");
         telemetry.addLine("Yoinker: " + String.valueOf(arm.testServo()));
         telemetry.addLine("Useless: " + String.valueOf(intake.testLift()));
@@ -43,11 +47,13 @@ public class CorrectTeleOp extends OpMode {
         intake.controls(gamepad1);
         shooter.controls(gamepad1);
         arm.controls(gamepad1);
+        camera.checkVuforiaObjects(telemetry);
     }
 
     @Override
     public void stop() {
         super.stop();
+        camera.stop();
         telemetry.addLine("Robot stopped");
 
     }
