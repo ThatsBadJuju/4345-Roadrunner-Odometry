@@ -11,9 +11,9 @@ public class Arm {
     public Servo armServo;
     Telemetry telemetry;
 
-    private int restPosition = 10;
-    private int upPosition = 500;
-    private int downPosition = 1000;
+    private int restPosition = -5;
+    private int upPosition = -250;
+    private int downPosition = -500;
     private boolean clawOpen = false;
 
     public Arm(DcMotor armMotor, Servo armServo) {
@@ -26,22 +26,20 @@ public class Arm {
 
     public void controls(Gamepad gp) {
         if(gp.a) {
-            armDown();
-        }
-        else if(gp.b) {
-            armUp();
-        }
-        else if(gp.y) {
             armRest();
         }
-
-        if(gp.x && clawOpen) {
-            grab();
-            clawOpen = false;
+//        else if(gp.b) {
+//            armUp();
+//        }
+        else if(gp.y) {
+            armDown();
         }
-        else if(gp.x && !clawOpen) {
+
+        if(gp.x) {
+            grab();
+        }
+        else if(gp.b) {
             release();
-            clawOpen = true;
         }
     }
 
@@ -54,24 +52,28 @@ public class Arm {
     public void armUp() {
         armMotor.setTargetPosition(upPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.75);
+        armMotor.setPower(0.2);
     }
 
     public void armDown() {
         armMotor.setTargetPosition(downPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(0.1);
-    }
+}
 
     public void grab() {
         armServo.setPosition(0.8);
     }
 
     public void release() {
-        armServo.setPosition(0.2);
+        armServo.setPosition(0.255);
     }
 
     public double testServo() {
         return armServo.getPosition();
+    }
+
+    public double testArm() {
+        return armMotor.getCurrentPosition();
     }
 }
