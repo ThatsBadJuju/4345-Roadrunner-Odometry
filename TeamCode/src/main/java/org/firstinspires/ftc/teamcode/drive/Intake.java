@@ -19,10 +19,10 @@ public class Intake {
 
     public void controls(Gamepad gp) {
         if(gp.dpad_down) {
-            //dropIntake();
+            dropIntake();
         }
         else if(gp.dpad_up) {
-            //liftIntake();
+            liftIntake();
         }
 
         if(gp.dpad_left) {
@@ -40,6 +40,10 @@ public class Intake {
 
     public void liftIntake() {
         servo.setPosition(liftPosition);
+    }
+
+    public double testLift() {
+        return servo.getPosition();
     }
 
     public void pushRing() {

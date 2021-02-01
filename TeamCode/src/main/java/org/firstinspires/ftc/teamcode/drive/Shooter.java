@@ -29,6 +29,6 @@ public class Shooter {
     }
 
     public void stopShooter() {
-        shooter.setPower(0.01);
+        shooter.setPower(0.0);
     }
 }
