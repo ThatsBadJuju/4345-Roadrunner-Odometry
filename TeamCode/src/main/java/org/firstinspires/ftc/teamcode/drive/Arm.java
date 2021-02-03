@@ -11,9 +11,9 @@ public class Arm {
     public Servo armServo;
     Telemetry telemetry;
 
-    private int restPosition = -5;
-    private int upPosition = -250;
-    private int downPosition = -500;
+    private int restPosition = -10;
+    private int upPosition = -500;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
+    private int downPosition = -1000;
     private boolean clawOpen = false;
 
     public Arm(DcMotor armMotor, Servo armServo) {
