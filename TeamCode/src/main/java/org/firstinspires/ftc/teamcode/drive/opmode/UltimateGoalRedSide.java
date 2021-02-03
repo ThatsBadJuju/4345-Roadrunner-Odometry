@@ -21,7 +21,7 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
 
         //scan rings here 0, 1, 4 = A, B, C
-        int rings = 0;
+        int rings = 1;
 
 
 

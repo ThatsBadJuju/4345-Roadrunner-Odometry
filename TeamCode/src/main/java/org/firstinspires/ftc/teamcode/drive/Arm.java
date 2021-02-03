@@ -12,8 +12,8 @@ public class Arm {
     Telemetry telemetry;
 
     private int restPosition = -10;
-    private int upPosition = -500;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
-    private int downPosition = -1000;
+    private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
+    private int downPosition = -825;
     private boolean clawOpen = false;
 
     public Arm(DcMotor armMotor, Servo armServo) {
@@ -28,17 +28,17 @@ public class Arm {
         if(gp.a) {
             armRest();
         }
-//        else if(gp.b) {
-//            armUp();
-//        }
+        else if(gp.b) {
+            armUp();
+        }
         else if(gp.y) {
             armDown();
         }
 
-        if(gp.x) {
+        if(gp.right_bumper) {
             grab();
         }
-        else if(gp.b) {
+        else if(gp.left_bumper) {
             release();
         }
     }
@@ -52,21 +52,21 @@ public class Arm {
     public void armUp() {
         armMotor.setTargetPosition(upPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.2);
+        armMotor.setPower(0.25);
     }
 
     public void armDown() {
         armMotor.setTargetPosition(downPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.1);
+        armMotor.setPower(0.2);
 }
 
     public void grab() {
-        armServo.setPosition(0.8);
+        armServo.setPosition(0.08);
     }
 
     public void release() {
-        armServo.setPosition(0.255);
+        armServo.setPosition(0.9);
     }
 
     public double testServo() {

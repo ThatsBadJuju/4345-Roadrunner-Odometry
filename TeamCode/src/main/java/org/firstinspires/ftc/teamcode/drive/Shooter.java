@@ -11,10 +11,10 @@ public class Shooter {
     }
 
     public void controls(Gamepad gp) {
-        if(gp.left_bumper) {
+        if(gp.left_trigger >= 0.05) {
             reverseShoot();
         }
-        else if(gp.right_bumper) {
+        else if(gp.right_trigger >= 0.05) {
             shoot();
         }
         else stopShooter();
