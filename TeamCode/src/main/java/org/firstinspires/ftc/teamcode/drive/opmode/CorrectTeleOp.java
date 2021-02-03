@@ -36,8 +36,6 @@ public class CorrectTeleOp extends OpMode {
         super.start();
         camera.activate();
         telemetry.addLine("Robot started");
-        telemetry.addLine("Yoinker: " + String.valueOf(arm.testServo()));
-        telemetry.addLine("Useless: " + String.valueOf(intake.testLift()));
     }
 
     @Override
@@ -47,7 +45,10 @@ public class CorrectTeleOp extends OpMode {
         intake.controls(gamepad1);
         shooter.controls(gamepad1);
         arm.controls(gamepad1);
-        camera.checkVuforiaObjects(telemetry);
+        //camera.checkVuforiaObjects(telemetry);
+        telemetry.addLine("Yoinker: " + String.valueOf(arm.testServo()));
+        telemetry.addLine("Useless: " + String.valueOf(intake.testLift()));
+        telemetry.addLine("Arm: " + String.valueOf(arm.testArm()));
     }
 
     @Override
