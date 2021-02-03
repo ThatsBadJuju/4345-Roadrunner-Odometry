@@ -14,7 +14,9 @@ public class Arm {
     private int restPosition = -10;
     private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
     private int downPosition = -825;
-    private boolean clawOpen = false;
+    private boolean clawOpen = true;
+    private long cooldownTime = 500; //500 milliseconds
+    private long grabbedTime = System.currentTimeMillis();
 
     public Arm(DcMotor armMotor, Servo armServo) {
         this.armMotor = armMotor;
@@ -25,6 +27,8 @@ public class Arm {
     }
 
     public void controls(Gamepad gp) {
+        long timeSinceGrab = System.currentTimeMillis() - grabbedTime;
+
         if(gp.a) {
             armRest();
         }
@@ -35,11 +39,23 @@ public class Arm {
             armDown();
         }
 
-        if(gp.right_bumper) {
-            grab();
-        }
-        else if(gp.left_bumper) {
-            release();
+//        if(gp.right_bumper) {
+//            grab();
+//        }
+//        else if(gp.left_bumper) {
+//            release();
+//        }
+
+        if(gp.x && timeSinceGrab >= cooldownTime) {
+            grabbedTime = System.currentTimeMillis();
+            if(clawOpen) {
+                grab();
+                clawOpen = false;
+            }
+            else {
+                release();
+                clawOpen = true;
+            }
         }
     }
 
@@ -62,11 +78,11 @@ public class Arm {
 }
 
     public void grab() {
-        armServo.setPosition(0.08);
+        armServo.setPosition(0.725);
     }
 
     public void release() {
-        armServo.setPosition(0.9);
+        armServo.setPosition(0.1);
     }
 
     public double testServo() {
