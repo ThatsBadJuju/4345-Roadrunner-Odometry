@@ -18,109 +18,124 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
         drive.setPoseEstimate(startPose);
 
-        Trajectory driveToRing = drive.trajectoryBuilder(startPose)
-                .forward(36)
+
+
+        //scan rings here 0, 1, 4 = A, B, C
+        int rings = 0;
+
+
+
+
+
+        Trajectory toZoneA = drive.trajectoryBuilder(startPose)
+                .forward(46)
+                .splineTo(new Vector2d(7, -34), Math.toRadians(305))
                 .build();
 
-        //scan rings here 1-3 = A to C, 0 = none sadge
-        int rings = (int) (Math.random() * 3) + 1;
 
-        //drive back to start if no rings detected
-        Trajectory backToStart = drive.trajectoryBuilder(driveToRing.end())
-                .back(-36)
+        Trajectory zoneAToDown = drive.trajectoryBuilder(toZoneA.end(), true)
+                .splineTo(new Vector2d(-15, -24), Math.toRadians(180))
+                .back(37)
+                .build();
+
+
+        Trajectory downToZoneA = drive.trajectoryBuilder(zoneAToDown.end())
+                .forward(26)
+                .splineTo(new Vector2d(-2, -34), Math.toRadians(305))
                 .build();
 
 
 
-
-        Trajectory toZoneA = drive.trajectoryBuilder(driveToRing.end())
-                .forward(36)
-                .build();
-
-        //drop first wobble here
-
-        //turning is done outside of trajectories
-
-        Trajectory zoneAToWobble = drive.trajectoryBuilder(new Pose2d(9, -24, Math.toRadians(270)), true)
-                .splineTo(new Vector2d(-51, 12), Math.toRadians(180))
-                .build();
-
-        Trajectory wobbleToZoneA = drive.trajectoryBuilder(zoneAToWobble.end())
-                .splineTo(new Vector2d(33, -33), Math.toRadians(270))
-                .build();
-
-        //drop second wobble here
-
-        Trajectory zoneAToPark = drive.trajectoryBuilder(wobbleToZoneA.end(), true)
-                .splineTo(new Vector2d(9, -12), Math.toRadians(180))
+        Trajectory zoneAToPark = drive.trajectoryBuilder(downToZoneA.end(), true)
+                .splineTo(new Vector2d(9, -12), Math.toRadians(0))
                 .build();
 
 
 
 
-        Trajectory toZoneB = drive.trajectoryBuilder(driveToRing.end())
-                .splineTo(new Vector2d(36, 0), Math.toRadians(0.0))
+        Trajectory toZoneB = drive.trajectoryBuilder(startPose)
+                .forward(102)
                 .build();
 
-        Trajectory zoneBToWobble = drive.trajectoryBuilder(toZoneB.end(), true)
-                .splineTo(new Vector2d(-51, 12), Math.toRadians(180))
+
+        Trajectory zoneBToDown = drive.trajectoryBuilder(toZoneB.end())
+                .back(91)
                 .build();
 
-        Trajectory wobbleToZoneB = drive.trajectoryBuilder(zoneBToWobble.end())
-                .splineTo(new Vector2d(30, 0), Math.toRadians(0))
+
+        Trajectory downToZoneB = drive.trajectoryBuilder(zoneBToDown.end())
+                .forward(82)
                 .build();
 
-        Trajectory zoneBToPark = drive.trajectoryBuilder(wobbleToZoneB.end())
+
+        Trajectory zoneBToPark = drive.trajectoryBuilder(downToZoneB.end())
                 .back(21)
                 .build();
 
 
 
 
-        Trajectory toZoneC = drive.trajectoryBuilder(driveToRing.end())
-                .forward(87)
+        Trajectory toZoneC = drive.trajectoryBuilder(startPose)
+                .forward(94)
+                .splineTo(new Vector2d(55, -34), Math.toRadians(305))
                 .build();
 
-        Trajectory zoneCToWobble = drive.trajectoryBuilder(toZoneC.end(), true)
-                .splineTo(new Vector2d(-51, 12), Math.toRadians(180))
+        Trajectory zoneCToDown = drive.trajectoryBuilder(toZoneC.end(), true)
+                .splineTo(new Vector2d(31, -24), Math.toRadians(180))
+                .back(83)
                 .build();
 
-        Trajectory wobbleToZoneC = drive.trajectoryBuilder(zoneCToWobble.end())
-                .splineTo(new Vector2d(54, -24), Math.toRadians(0))
+        Trajectory downToZoneC = drive.trajectoryBuilder(zoneCToDown.end())
+                .forward(74)
+                .splineTo(new Vector2d(46, -34), Math.toRadians(305))
                 .build();
 
-        Trajectory zoneCToPark = drive.trajectoryBuilder(wobbleToZoneC.end())
-                .back(45)
+        Trajectory zoneCToPark = drive.trajectoryBuilder(downToZoneC.end(), true)
+                .splineTo(new Vector2d(22, -24), Math.toRadians(180))
+                .back(13)
                 .build();
+
+
+
+
+        Trajectory downToWobble = drive.trajectoryBuilder(new Pose2d(-52, -24, Math.toRadians(0)), false)
+                .strafeLeft(12.0)
+                .build();
+
+        Trajectory wobbleToDown = drive.trajectoryBuilder(new Pose2d(-52, -12, Math.toRadians(0)), false)
+                .strafeRight(12.0)
+                .build();
+
+
 
 
         waitForStart();
 
         if(isStopRequested()) return;
 
-        drive.followTrajectory(driveToRing);
-
-        if(rings == 1) {
+        if(rings == 0) {
             drive.followTrajectory(toZoneA);
-            drive.turn(Math.toRadians(-90));    //probably -90 b/c unit circle?
-            drive.followTrajectory(zoneAToWobble);
-            drive.followTrajectory(wobbleToZoneA);
+            drive.followTrajectory(zoneAToDown);
+            drive.followTrajectory(downToWobble);
+            drive.followTrajectory(wobbleToDown);
+            drive.followTrajectory(downToZoneA);
             drive.followTrajectory(zoneAToPark);
         }
-        else if(rings == 2) {
+        else if(rings == 1) {
             drive.followTrajectory(toZoneB);
-            drive.followTrajectory(zoneBToWobble);
-            drive.followTrajectory(wobbleToZoneB);
+            drive.followTrajectory(zoneBToDown);
+            drive.followTrajectory(downToWobble);
+            drive.followTrajectory(wobbleToDown);
+            drive.followTrajectory(downToZoneB);
             drive.followTrajectory(zoneBToPark);
         }
-        else if(rings == 3) {
+        else if(rings == 4) {
             drive.followTrajectory(toZoneC);
-            drive.followTrajectory(zoneCToWobble);
-            drive.followTrajectory(wobbleToZoneC);
+            drive.followTrajectory(zoneCToDown);
+            drive.followTrajectory(downToWobble);
+            drive.followTrajectory(wobbleToDown);
+            drive.followTrajectory(downToZoneC);
             drive.followTrajectory(zoneCToPark);
-        }
-        else {
-            drive.followTrajectory(backToStart);
         }
     }
 }
