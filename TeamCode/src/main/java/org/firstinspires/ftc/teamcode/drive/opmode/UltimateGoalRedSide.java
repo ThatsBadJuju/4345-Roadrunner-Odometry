@@ -3,16 +3,35 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.drive.Arm;
+import org.firstinspires.ftc.teamcode.drive.Camera;
+import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.Shooter;
 
 @Autonomous(name = "DoubleWobblePark", group = "drive" )
 public class UltimateGoalRedSide extends LinearOpMode {
+
+    public Intake intake;
+    public Shooter shooter;
+    public Arm arm;
+    public Camera camera;
+
     @Override
     public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
+        intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
+        shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
+        arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
+        camera = new Camera(hardwareMap);
+
+        camera.activate();
 
         Pose2d startPose = new Pose2d(-63, -24, Math.toRadians(0));
 
@@ -99,7 +118,10 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
 
         Trajectory downToWobble = drive.trajectoryBuilder(new Pose2d(-52, -24, Math.toRadians(0)), false)
-                .strafeLeft(12.0)
+                .lineTo(new Vector2d(-52, -12),
+                        new MecanumConstraints(new DriveConstraints(
+                        20, 20, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
         Trajectory wobbleToDown = drive.trajectoryBuilder(new Pose2d(-52, -12, Math.toRadians(0)), false)
@@ -113,12 +135,23 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
         if(isStopRequested()) return;
 
+        arm.grab();
+
         if(rings == 0) {
             drive.followTrajectory(toZoneA);
+            arm.armDown();
+            arm.release();
+            arm.armUp();
             drive.followTrajectory(zoneAToDown);
+            arm.armDown();
             drive.followTrajectory(downToWobble);
+            arm.grab();
+            arm.armUp();
             drive.followTrajectory(wobbleToDown);
             drive.followTrajectory(downToZoneA);
+            arm.armDown();
+            arm.release();
+            arm.armUp();
             drive.followTrajectory(zoneAToPark);
         }
         else if(rings == 1) {
