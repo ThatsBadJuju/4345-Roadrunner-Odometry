@@ -37,7 +37,8 @@ public class VisionTest extends OpMode {
         // drivetrain.controls(gamepad1);
         // intake.controls(gamepad1);
         // shooter.controls(gamepad1);
-        camera.checkVuforiaObjects(telemetry);
+        telemetry.addData("Object recognized", camera.checkTFODObjects(telemetry));
+        telemetry.update();
     }
 
     @Override

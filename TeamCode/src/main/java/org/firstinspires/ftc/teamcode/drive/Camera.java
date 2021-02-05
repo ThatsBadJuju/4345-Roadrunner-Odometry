@@ -174,7 +174,7 @@ public class Camera {
         // Activates tfod model (zoom is to ensure that the model can be more accurate in detecting)
         if (tfod != null) {
             tfod.activate();
-            // tfod.setZoom(2, 1.78); // values can change (don't zoom cuz not necessary)
+            tfod.setZoom(1.25, 1.78); // values can change (don't zoom cuz not necessary)
         }
         // Activates field localization
         targetsUltimateGoal.activate();
@@ -202,11 +202,12 @@ public class Camera {
                             recognition.getLeft(), recognition.getTop());
                     tele.addData(String.format("right,bottom (%d)", i), "%.03f , %.03f",
                             recognition.getRight(), recognition.getBottom());
+
+                    // check if disc is 4 stack or single
+                    if(recognition.getLabel().equals("Quad")) return 4;
+                    else if(recognition.getLabel().equals("Single")) return 1;
                 }
 
-                // check if disc is 4 stack or single
-                if(updatedRecognitions.get(0).getLabel().equals("Quad")) return 4;
-                else if(updatedRecognitions.get(0).getLabel().equals("Single")) return 1;
             }
             // No objects recognized
             return 0;
