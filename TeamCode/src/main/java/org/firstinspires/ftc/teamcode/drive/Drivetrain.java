@@ -53,7 +53,7 @@ public class Drivetrain {
         float x = (float)(Math.pow(gp.left_stick_y, 3));
         float y = (float)(Math.pow(-gp.left_stick_x, 3));
         float z = (float)(Math.pow(-gp.right_stick_x, 3));
-        if (gp.left_trigger != 0) {
+        if (gp.left_stick_button || gp.right_stick_button || gp.left_trigger != 0) {
             x /=3;
             y /=3;
             z/= 3;

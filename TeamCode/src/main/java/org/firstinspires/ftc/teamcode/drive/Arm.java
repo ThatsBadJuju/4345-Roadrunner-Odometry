@@ -62,19 +62,19 @@ public class Arm {
     public void armRest() {
         armMotor.setTargetPosition(restPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.2);
+        armMotor.setPower(0.4);
     }
 
     public void armUp() {
         armMotor.setTargetPosition(upPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.25);
+        armMotor.setPower(0.4);
     }
 
     public void armDown() {
         armMotor.setTargetPosition(downPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.2);
+        armMotor.setPower(0.4);
 }
 
     public void grab() {

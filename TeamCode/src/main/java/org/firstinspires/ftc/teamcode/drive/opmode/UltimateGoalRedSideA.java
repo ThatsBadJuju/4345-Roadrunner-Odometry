@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
 
-@Autonomous(name = "DoubleWobblePark", group = "drive" )
-public class UltimateGoalRedSide extends LinearOpMode {
+@Autonomous(name = "DoubleWobbleParkA", group = "drive" )
+public class UltimateGoalRedSideA extends LinearOpMode {
 
     public Intake intake;
     public Shooter shooter;
@@ -40,7 +40,7 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
 
         //scan rings here 0, 1, 4 = A, B, C
-        int rings = 1;
+        int rings = 0;
 
 
 
@@ -48,7 +48,7 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
         Trajectory toZoneA = drive.trajectoryBuilder(startPose)
                 .forward(46)
-                .splineTo(new Vector2d(7, -34), Math.toRadians(305))
+                .splineTo(new Vector2d(7, -33), Math.toRadians(305))
                 .build();
 
 
@@ -60,7 +60,7 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
         Trajectory downToZoneA = drive.trajectoryBuilder(zoneAToDown.end())
                 .forward(26)
-                .splineTo(new Vector2d(-2, -34), Math.toRadians(305))
+                .splineTo(new Vector2d(-2, -33), Math.toRadians(305))
                 .build();
 
 
@@ -96,7 +96,7 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
         Trajectory toZoneC = drive.trajectoryBuilder(startPose)
                 .forward(94)
-                .splineTo(new Vector2d(55, -34), Math.toRadians(305))
+                .splineTo(new Vector2d(55, -33), Math.toRadians(305))
                 .build();
 
         Trajectory zoneCToDown = drive.trajectoryBuilder(toZoneC.end(), true)
@@ -106,7 +106,7 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
         Trajectory downToZoneC = drive.trajectoryBuilder(zoneCToDown.end())
                 .forward(74)
-                .splineTo(new Vector2d(46, -34), Math.toRadians(305))
+                .splineTo(new Vector2d(46, -33), Math.toRadians(305))
                 .build();
 
         Trajectory zoneCToPark = drive.trajectoryBuilder(downToZoneC.end(), true)
@@ -130,29 +130,38 @@ public class UltimateGoalRedSide extends LinearOpMode {
 
 
 
+        arm.grab();
 
         waitForStart();
 
         if(isStopRequested()) return;
 
-        arm.grab();
+
 
         if(rings == 0) {
             drive.followTrajectory(toZoneA);
-            arm.armDown();
+            arm.armDown();                      //will turn into dropWobble method (cleanup)
+            drive.residentSleeper(1000);
             arm.release();
+            drive.residentSleeper(250);
             arm.armUp();
             drive.followTrajectory(zoneAToDown);
             arm.armDown();
             drive.followTrajectory(downToWobble);
+            drive.residentSleeper(500);
             arm.grab();
+            drive.residentSleeper(500);
             arm.armUp();
             drive.followTrajectory(wobbleToDown);
             drive.followTrajectory(downToZoneA);
             arm.armDown();
+            drive.residentSleeper(1000);
             arm.release();
+            drive.residentSleeper(250);
             arm.armUp();
             drive.followTrajectory(zoneAToPark);
+            arm.armRest();
+            drive.residentSleeper(1000);
         }
         else if(rings == 1) {
             drive.followTrajectory(toZoneB);
