@@ -11,10 +11,12 @@ public class Arm {
     public Servo armServo;
     Telemetry telemetry;
 
-    private int restPosition = -5;
-    private int upPosition = -250;
-    private int downPosition = -500;
-    private boolean clawOpen = false;
+    private int restPosition = -10;
+    private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
+    private int downPosition = -825;
+    private boolean clawOpen = true;
+    private long cooldownTime = 500; //500 milliseconds
+    private long grabbedTime = System.currentTimeMillis();
 
     public Arm(DcMotor armMotor, Servo armServo) {
         this.armMotor = armMotor;
@@ -25,21 +27,35 @@ public class Arm {
     }
 
     public void controls(Gamepad gp) {
+        long timeSinceGrab = System.currentTimeMillis() - grabbedTime;
+
         if(gp.a) {
             armRest();
         }
-//        else if(gp.b) {
-//            armUp();
-//        }
+        else if(gp.b) {
+            armUp();
+        }
         else if(gp.y) {
             armDown();
         }
 
-        if(gp.x) {
-            grab();
-        }
-        else if(gp.b) {
-            release();
+//        if(gp.right_bumper) {
+//            grab();
+//        }
+//        else if(gp.left_bumper) {
+//            release();
+//        }
+
+        if(gp.x && timeSinceGrab >= cooldownTime) {
+            grabbedTime = System.currentTimeMillis();
+            if(clawOpen) {
+                grab();
+                clawOpen = false;
+            }
+            else {
+                release();
+                clawOpen = true;
+            }
         }
     }
 
@@ -52,21 +68,21 @@ public class Arm {
     public void armUp() {
         armMotor.setTargetPosition(upPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.2);
+        armMotor.setPower(0.25);
     }
 
     public void armDown() {
         armMotor.setTargetPosition(downPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.1);
+        armMotor.setPower(0.2);
 }
 
     public void grab() {
-        armServo.setPosition(0.8);
+        armServo.setPosition(0.725);
     }
 
     public void release() {
-        armServo.setPosition(0.255);
+        armServo.setPosition(0.1);
     }
 
     public double testServo() {

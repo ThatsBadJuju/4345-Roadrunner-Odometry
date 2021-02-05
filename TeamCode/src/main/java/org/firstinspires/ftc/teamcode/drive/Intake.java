@@ -1,23 +1,35 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake {
+    private DcMotor intakeMotor;
     private Servo servo;
     private CRServo crServo;
 
     private double dropPosition = 0.5;
     private double liftPosition = 0.7;
 
-    public Intake(Servo servo, CRServo crServo) {
+    public Intake(DcMotor intakeMotor, Servo servo, CRServo crServo) {
+        this.intakeMotor = intakeMotor;
         this.servo = servo;
         this.crServo = crServo;
-
     }
 
     public void controls(Gamepad gp) {
+        if(gp.left_bumper) {
+            unsucc();
+        }
+        else if(gp.right_bumper) {
+            succ();
+        }
+        else {
+            nosucc();
+        }
+
         if(gp.dpad_down) {
             dropIntake();
         }
@@ -32,6 +44,18 @@ public class Intake {
             pushRing();
         }
         else stopRing();
+    }
+
+    public void succ() {
+        intakeMotor.setPower(-0.5);
+    }
+
+    public void unsucc() {
+        intakeMotor.setPower(0.3);
+    }
+
+    public void nosucc() {
+        intakeMotor.setPower(0.0);
     }
 
     public void dropIntake() {
