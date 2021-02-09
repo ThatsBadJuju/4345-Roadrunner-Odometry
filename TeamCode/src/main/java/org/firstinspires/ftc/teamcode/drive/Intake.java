@@ -10,8 +10,8 @@ public class Intake {
     private Servo servo;
     private CRServo crServo;
 
-    private double dropPosition = 0.5;
-    private double liftPosition = 0.7;
+    private double dropPosition = 0.55;
+    private double liftPosition = 0.4;
 
     public Intake(DcMotor intakeMotor, Servo servo, CRServo crServo) {
         this.intakeMotor = intakeMotor;
