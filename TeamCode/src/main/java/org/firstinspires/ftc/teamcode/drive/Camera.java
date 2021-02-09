@@ -71,119 +71,22 @@ public class Camera {
     private static final VuforiaLocalizer.CameraDirection CAMERA_DIRECTION = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false;
 
-    // constructor
-    public Camera(HardwareMap hwMap) {
-
-        // initialize camera + vuforia model
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hwMap.get(WebcamName.class, "camera");
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        // input vuforia images
-        targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
-        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
-        blueTowerGoalTarget.setName("Blue Tower Goal Target");
-        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
-        redTowerGoalTarget.setName("Red Tower Goal Target");
-        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
-        redAllianceTarget.setName("Red Alliance Target");
-        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
-        blueAllianceTarget.setName("Blue Alliance Target");
-        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
-        frontWallTarget.setName("Front Wall Target");
-
-        // create trackables
-        allTrackables.addAll(targetsUltimateGoal); // Uses the images that you get from code above
-
-        /*
-         * Create transformation matrix for the location of the photos
-         * You need to create a transformation matrix for all of these images to accurately know
-         * the correct location of your current bot. The transformation matrxi that we are using is
-         * a translational and rotational one. The translation occurs since it's some distance away
-         * from the origin and rotation occurs since depending on which side of the wall its on,
-         * the image will be rotated in different orientations. Knowing the transformation matrix
-         * (both the translational and rotational) of the images and the matrix of your robot
-         * (created later) will allow you to figure out the standard translation or rotation
-         * matrix, or the matrix defining the distance and angle your robot is from the tracking
-         * target
-         */
-        // Perimeter targets
-        redAllianceTarget.setLocation(OpenGLMatrix
-                .translation(0, -halfField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
-
-        blueAllianceTarget.setLocation(OpenGLMatrix
-                .translation(0, halfField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
-
-        frontWallTarget.setLocation(OpenGLMatrix
-                .translation(-halfField, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90)));
-
-        // Tower goal targets
-        blueTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, fourthField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
-
-        redTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, -fourthField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
-
-        // Phone displacement (this is where the 2 global variables are used)
-        if (CAMERA_DIRECTION == BACK)
-            cameraYRotate = -90;
-        else
-            cameraYRotate = 90;
-
-        if (PHONE_IS_PORTRAIT)
-            cameraXRotate = 90;
-
-        /*
-         * setup phone transformation matrix
-         * This case, the global variables can be changed based off of the location that the camera
-         * is placed. But the difference in this matrix is the order of euler angles (roll-pitch-yaw
-         * or XYZ angles). We use YZX instead of the normal XYZ because of the initial orientation of
-         * the camera.
-         */
-        OpenGLMatrix cameraLocation = OpenGLMatrix
-                .translation(CAMERA_X_DISPLACEMENT, CAMERA_Y_DISPLACEMENT, CAMERA_Z_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, cameraYRotate, cameraZRotate, cameraXRotate));
-
-        // Get listeners to make sure you can track the vuforia targets
-        for (VuforiaTrackable trackable : allTrackables) {
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(cameraLocation, parameters.cameraDirection);
-        }
-
-        // initialize tfod model
-        // retrieveing specific package and parameters for the camera
-        int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f; // if 80% confident, then the detection is correct
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-
-    }
-
     // Methods
     // Activates tfod and vuforia models
     public void activate() {
         // Activates tfod model (zoom is to ensure that the model can be more accurate in detecting)
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(1.25, 1.78); // values can change (don't zoom cuz not necessary)
+            tfod.setZoom(1.0, 1.78); // values can change (don't zoom cuz not necessary)
         }
         // Activates field localization
-        targetsUltimateGoal.activate();
+        // targetsUltimateGoal.activate();
     }
 
     // stops tfod and vuforia models
     public void stop() {
         if (tfod != null) tfod.shutdown();
-        targetsUltimateGoal.deactivate();
+        // targetsUltimateGoal.deactivate();
     }
 
     // run during "loop," and checks for objects that can be detected
@@ -193,7 +96,7 @@ public class Camera {
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions(); // list of recognized objects (4-stack of disks or 1-stack of disc)
             if (updatedRecognitions != null) {
                 // just printing out all of the recognized objects and what type they are
-                tele.addData("# Object Detected", updatedRecognitions.size());
+                // tele.addData("# Object Detected", updatedRecognitions.size());
 
                 int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
@@ -216,47 +119,145 @@ public class Camera {
         return -1;
     }
 
-    public void checkVuforiaObjects(Telemetry tele) {
-        // field localization
-        targetVisible = false; // initially no targets visible
-        String image = "";
-        for(VuforiaTrackable trackable: allTrackables) { // runs through all images
-            // if statement checks if the current image is visible in the camera
-            if(((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                tele.addData("Visible Target", trackable.getName()); // if visible, print out data of it
-                targetVisible = true;
-                image = trackable.getName();
+    // constructor
+    public Camera(HardwareMap hwMap) {
 
-                // use the image to get the location of the robot, and if you can update the location (if robot mobed)
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                if(robotLocationTransform != null)
-                    lastLocation = robotLocationTransform;
-                break;
-            }
-        }
+        // initialize camera + vuforia model
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        // output if robot can see target
-        if(targetVisible) {
-            // translate the robot
-            VectorF translation = lastLocation.getTranslation(); // translation matrix of robot
-            tele.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                    translation.get(0)/mmPerInch, translation.get(1)/mmPerInch, translation.get(2)/mmPerInch);
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hwMap.get(WebcamName.class, "camera");
 
-            // rotation of robot
-            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES); // rotation matrix of robot
-            tele.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f",
-                    rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
-//            if(image.equals(TARGET_IMAGE)) {
-//                tele.addData("Distance from ideal (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-//                        IDEAL_X_POS-(translation.get(0)/mmPerInch), IDEAL_Y_POS-(translation.get(1)/mmPerInch),
-//                                IDEAL_Z_POS-(translation.get(2)/mmPerInch));
-//            }
-        } else {
-            tele.addData("Visible Target", "none");
-        }
+        // initialize tfod model
+        // retrieveing specific package and parameters for the camera
+        int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f; // if 80% confident, then the detection is correct
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
-        tele.update();
+        // Vuforia initialization temporarily dissabled to reduce init times
+        // input vuforia images
+//        targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
+//        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
+//        blueTowerGoalTarget.setName("Blue Tower Goal Target");
+//        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
+//        redTowerGoalTarget.setName("Red Tower Goal Target");
+//        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
+//        redAllianceTarget.setName("Red Alliance Target");
+//        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
+//        blueAllianceTarget.setName("Blue Alliance Target");
+//        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
+//        frontWallTarget.setName("Front Wall Target");
+//
+//        // create trackables
+//        allTrackables.addAll(targetsUltimateGoal); // Uses the images that you get from code above
+//
+//        /*
+//         * Create transformation matrix for the location of the photos
+//         * You need to create a transformation matrix for all of these images to accurately know
+//         * the correct location of your current bot. The transformation matrxi that we are using is
+//         * a translational and rotational one. The translation occurs since it's some distance away
+//         * from the origin and rotation occurs since depending on which side of the wall its on,
+//         * the image will be rotated in different orientations. Knowing the transformation matrix
+//         * (both the translational and rotational) of the images and the matrix of your robot
+//         * (created later) will allow you to figure out the standard translation or rotation
+//         * matrix, or the matrix defining the distance and angle your robot is from the tracking
+//         * target
+//         */
+//        // Perimeter targets
+//        redAllianceTarget.setLocation(OpenGLMatrix
+//                .translation(0, -halfField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
+//
+//        blueAllianceTarget.setLocation(OpenGLMatrix
+//                .translation(0, halfField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+//
+//        frontWallTarget.setLocation(OpenGLMatrix
+//                .translation(-halfField, 0, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90)));
+//
+//        // Tower goal targets
+//        blueTowerGoalTarget.setLocation(OpenGLMatrix
+//                .translation(halfField, fourthField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+//
+//        redTowerGoalTarget.setLocation(OpenGLMatrix
+//                .translation(halfField, -fourthField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+//
+//        // Phone displacement (this is where the 2 global variables are used)
+//        if (CAMERA_DIRECTION == BACK)
+//            cameraYRotate = -90;
+//        else
+//            cameraYRotate = 90;
+//
+//        if (PHONE_IS_PORTRAIT)
+//            cameraXRotate = 90;
+//
+//        /*
+//         * setup phone transformation matrix
+//         * This case, the global variables can be changed based off of the location that the camera
+//         * is placed. But the difference in this matrix is the order of euler angles (roll-pitch-yaw
+//         * or XYZ angles). We use YZX instead of the normal XYZ because of the initial orientation of
+//         * the camera.
+//         */
+//        OpenGLMatrix cameraLocation = OpenGLMatrix
+//                .translation(CAMERA_X_DISPLACEMENT, CAMERA_Y_DISPLACEMENT, CAMERA_Z_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, cameraYRotate, cameraZRotate, cameraXRotate));
+//
+//        // Get listeners to make sure you can track the vuforia targets
+//        for (VuforiaTrackable trackable : allTrackables) {
+//            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(cameraLocation, parameters.cameraDirection);
+//        }
+
     }
+
+//    public void checkVuforiaObjects(Telemetry tele) {
+//        // field localization
+//        targetVisible = false; // initially no targets visible
+//        String image = "";
+//        for(VuforiaTrackable trackable: allTrackables) { // runs through all images
+//            // if statement checks if the current image is visible in the camera
+//            if(((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+//                tele.addData("Visible Target", trackable.getName()); // if visible, print out data of it
+//                targetVisible = true;
+//                image = trackable.getName();
+//
+//                // use the image to get the location of the robot, and if you can update the location (if robot mobed)
+//                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+//                if(robotLocationTransform != null)
+//                    lastLocation = robotLocationTransform;
+//                break;
+//            }
+//        }
+//
+//        // output if robot can see target
+//        if(targetVisible) {
+//            // translate the robot
+//            VectorF translation = lastLocation.getTranslation(); // translation matrix of robot
+//            tele.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+//                    translation.get(0)/mmPerInch, translation.get(1)/mmPerInch, translation.get(2)/mmPerInch);
+//
+//            // rotation of robot
+//            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES); // rotation matrix of robot
+//            tele.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f",
+//                    rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+//
+////            if(image.equals(TARGET_IMAGE)) {
+////                tele.addData("Distance from ideal (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+////                        IDEAL_X_POS-(translation.get(0)/mmPerInch), IDEAL_Y_POS-(translation.get(1)/mmPerInch),
+////                                IDEAL_Z_POS-(translation.get(2)/mmPerInch));
+////            }
+//        } else {
+//            tele.addData("Visible Target", "none");
+//        }
+//
+//        tele.update();
+//    }
 
 }

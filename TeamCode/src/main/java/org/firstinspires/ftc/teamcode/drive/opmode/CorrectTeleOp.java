@@ -28,7 +28,7 @@ public class CorrectTeleOp extends OpMode {
         intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
         shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
-        camera = new Camera(hardwareMap);
+        // camera = new Camera(hardwareMap);
     }
 
     @Override
