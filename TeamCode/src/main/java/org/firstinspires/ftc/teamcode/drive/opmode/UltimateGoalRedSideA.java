@@ -42,9 +42,14 @@ public class UltimateGoalRedSideA extends LinearOpMode {
         //scan rings here 0, 1, 4 = A, B, C
         int rings = 0;
 
-
-
-
+        long startTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
+        while(rings == 0 && (endTime - startTime)/1000.0 < 3) {
+            rings = camera.checkTFODObjects(telemetry);
+            endTime = System.currentTimeMillis();
+        }
+        telemetry.addData("Number of Rings: ", rings);
+        telemetry.update();
 
         Trajectory toZoneA = drive.trajectoryBuilder(startPose)
                 .forward(46)

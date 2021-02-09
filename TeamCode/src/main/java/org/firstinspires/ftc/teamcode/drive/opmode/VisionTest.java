@@ -33,12 +33,23 @@ public class VisionTest extends OpMode {
 
     @Override
     public void loop() {
-        //TODO: Controls
-        // drivetrain.controls(gamepad1);
-        // intake.controls(gamepad1);
-        // shooter.controls(gamepad1);
-        telemetry.addData("Object recognized", camera.checkTFODObjects(telemetry));
-        telemetry.update();
+        int rings = 0;
+        rings = camera.checkTFODObjects(telemetry);
+        telemetry.addData("Number of Rings: ", rings);
+//        long startTime = System.currentTimeMillis();
+//        long endTime = System.currentTimeMillis();
+//        while(rings == 0 && (endTime - startTime)/1000.0 < 2) {
+//            rings = camera.checkTFODObjects(telemetry);
+//            endTime = System.currentTimeMillis();
+//        }
+//        telemetry.addData("Number of Rings: ", rings);
+//        telemetry.addData("current time: ", endTime);
+//        telemetry.update();
+//        try {
+//            Thread.sleep(10000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
