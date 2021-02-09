@@ -19,7 +19,7 @@ public class CorrectTeleOp extends OpMode {
     public Intake intake;
     public Shooter shooter;
     public Arm arm;
-    public Camera camera;
+    // public Camera camera;
 
     @Override
     public void init() {
@@ -34,7 +34,7 @@ public class CorrectTeleOp extends OpMode {
     @Override
     public void start() {
         super.start();
-        camera.activate();
+        // camera.activate();
         telemetry.addLine("Robot started");
     }
 
@@ -54,7 +54,7 @@ public class CorrectTeleOp extends OpMode {
     @Override
     public void stop() {
         super.stop();
-        camera.stop();
+        // camera.stop();
         telemetry.addLine("Robot stopped");
 
     }
