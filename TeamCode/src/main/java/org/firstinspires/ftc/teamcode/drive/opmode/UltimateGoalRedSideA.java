@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
 
-@Autonomous(name = "DoubleWobbleParkA", group = "drive" )
+@Autonomous(name = "DoubleWobbleParkVision", group = "drive" )
 public class UltimateGoalRedSideA extends LinearOpMode {
 
     public Intake intake;
@@ -170,19 +170,53 @@ public class UltimateGoalRedSideA extends LinearOpMode {
         }
         else if(rings == 1) {
             drive.followTrajectory(toZoneB);
+            arm.armDown();
+            drive.residentSleeper(1000);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armUp();
             drive.followTrajectory(zoneBToDown);
+            arm.armDown();
             drive.followTrajectory(downToWobble);
+            drive.residentSleeper(500);
+            arm.grab();
+            drive.residentSleeper(500);
+            arm.armUp();
             drive.followTrajectory(wobbleToDown);
             drive.followTrajectory(downToZoneB);
+            arm.armDown();
+            drive.residentSleeper(1000);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armUp();
             drive.followTrajectory(zoneBToPark);
+            arm.armRest();
+            drive.residentSleeper(1000);
         }
         else if(rings == 4) {
             drive.followTrajectory(toZoneC);
+            arm.armDown();
+            drive.residentSleeper(1000);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armUp();
             drive.followTrajectory(zoneCToDown);
+            arm.armDown();
             drive.followTrajectory(downToWobble);
+            drive.residentSleeper(500);
+            arm.grab();
+            drive.residentSleeper(500);
+            arm.armUp();
             drive.followTrajectory(wobbleToDown);
             drive.followTrajectory(downToZoneC);
+            arm.armDown();
+            drive.residentSleeper(1000);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armUp();
             drive.followTrajectory(zoneCToPark);
+            arm.armRest();
+            drive.residentSleeper(1000);
         }
     }
 }
