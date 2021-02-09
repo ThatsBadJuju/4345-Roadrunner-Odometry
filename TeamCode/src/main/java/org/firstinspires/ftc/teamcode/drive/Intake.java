@@ -47,7 +47,7 @@ public class Intake {
     }
 
     public void succ() {
-        intakeMotor.setPower(-0.5);
+        intakeMotor.setPower(-0.55);
     }
 
     public void unsucc() {
