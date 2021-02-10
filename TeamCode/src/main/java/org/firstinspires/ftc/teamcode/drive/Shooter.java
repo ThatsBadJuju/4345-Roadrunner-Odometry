@@ -24,6 +24,10 @@ public class Shooter {
         shooter.setPower(-0.65);
     }
 
+    public void shootAuto() {
+        shooter.setPower(-0.6);
+    }
+
     public void reverseShoot() {
         shooter.setPower(0.1);
     }

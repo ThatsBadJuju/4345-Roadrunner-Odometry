@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
 
 @Autonomous(name = "DoubleWobbleParkVision", group = "drive" )
-public class UltimateGoalRedSideA extends LinearOpMode {
+public class RedSideA extends LinearOpMode {
 
     public Intake intake;
     public Shooter shooter;
@@ -100,23 +100,23 @@ public class UltimateGoalRedSideA extends LinearOpMode {
 
 
         Trajectory toZoneC = drive.trajectoryBuilder(startPose)
-                .forward(94)
-                .splineTo(new Vector2d(55, -33), Math.toRadians(305))
+                .forward(87)
+                .splineTo(new Vector2d(48, -33), Math.toRadians(305))
                 .build();
 
         Trajectory zoneCToDown = drive.trajectoryBuilder(toZoneC.end(), true)
-                .splineTo(new Vector2d(31, -24), Math.toRadians(180))
-                .back(83)
+                .splineTo(new Vector2d(24, -24), Math.toRadians(180))
+                .back(76)
                 .build();
 
         Trajectory downToZoneC = drive.trajectoryBuilder(zoneCToDown.end())
-                .forward(74)
-                .splineTo(new Vector2d(46, -33), Math.toRadians(305))
+                .forward(67)
+                .splineTo(new Vector2d(39, -33), Math.toRadians(305))
                 .build();
 
         Trajectory zoneCToPark = drive.trajectoryBuilder(downToZoneC.end(), true)
-                .splineTo(new Vector2d(22, -24), Math.toRadians(180))
-                .back(13)
+                .splineTo(new Vector2d(15, -24), Math.toRadians(180))
+                .back(6)
                 .build();
 
 
