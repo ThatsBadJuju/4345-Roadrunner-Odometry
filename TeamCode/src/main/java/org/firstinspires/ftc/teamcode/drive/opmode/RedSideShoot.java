@@ -80,17 +80,17 @@ public class RedSideShoot extends LinearOpMode {
 
 
         Trajectory toZoneB = drive.trajectoryBuilder(startPose)
-                .forward(102)
+                .forward(98)
                 .build();
 
 
         Trajectory zoneBToDown = drive.trajectoryBuilder(toZoneB.end())
-                .back(91)
+                .back(87)
                 .build();
 
 
         Trajectory downToZoneB = drive.trajectoryBuilder(zoneBToDown.end())
-                .forward(82)
+                .forward(78)
                 .build();
 
 
@@ -225,19 +225,18 @@ public class RedSideShoot extends LinearOpMode {
             shooter.shoot();
             drive.followTrajectory(zoneBToShoot);
 
-            intake.liftIntake();
             intake.pushRing();
-            drive.residentSleeper(500);
-            intake.stopRing();
-            drive.turn(Math.toRadians(-5.5));
             drive.residentSleeper(1000);
-            intake.pushRing();
-            drive.residentSleeper(500);
             intake.stopRing();
-            drive.turn(Math.toRadians(11.0));
-            drive.residentSleeper(1000);
+            drive.turn(Math.toRadians(-6)); //turns right?
+            drive.residentSleeper(2000);
             intake.pushRing();
-            drive.residentSleeper(500);
+            drive.residentSleeper(1000);
+            intake.stopRing();
+            drive.turn(Math.toRadians(12.0));   //turns left?
+            drive.residentSleeper(2000);
+            intake.pushRing();
+            drive.residentSleeper(1000);
             intake.stopRing();
             drive.followTrajectory(shootToPark);
         }
@@ -268,19 +267,18 @@ public class RedSideShoot extends LinearOpMode {
             shooter.shoot();
             drive.followTrajectory(zoneCToShoot);
 
-            intake.liftIntake();
             intake.pushRing();
-            drive.residentSleeper(500);
-            intake.stopRing();
-            drive.turn(Math.toRadians(-5.5));
             drive.residentSleeper(1000);
-            intake.pushRing();
-            drive.residentSleeper(500);
             intake.stopRing();
-            drive.turn(Math.toRadians(11.0));
-            drive.residentSleeper(1000);
+            drive.turn(Math.toRadians(-6)); //turns right?
+            drive.residentSleeper(2000);
             intake.pushRing();
-            drive.residentSleeper(500);
+            drive.residentSleeper(1000);
+            intake.stopRing();
+            drive.turn(Math.toRadians(12.0));   //turns left?
+            drive.residentSleeper(2000);
+            intake.pushRing();
+            drive.residentSleeper(1000);
             intake.stopRing();
             drive.followTrajectory(shootToPark);
         }
