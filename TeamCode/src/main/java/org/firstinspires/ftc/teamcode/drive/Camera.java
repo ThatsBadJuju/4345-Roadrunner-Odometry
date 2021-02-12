@@ -135,7 +135,7 @@ public class Camera {
         int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f; // if 80% confident, then the detection is correct
+        tfodParameters.minResultConfidence = 0.6f; // if 80% confident, then the detection is correct
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 

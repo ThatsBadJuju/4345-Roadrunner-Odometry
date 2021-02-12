@@ -44,7 +44,7 @@ public class RedSideShoot extends LinearOpMode {
 
         long startTime = System.currentTimeMillis();
         long endTime = System.currentTimeMillis();
-        while(rings == 0 && (endTime - startTime)/1000.0 < 3) {
+        while(rings == 0 && (endTime - startTime)/1000.0 < 3.5) {
             rings = camera.checkTFODObjects(telemetry);
             endTime = System.currentTimeMillis();
         }
@@ -52,40 +52,46 @@ public class RedSideShoot extends LinearOpMode {
         telemetry.update();
 
         Trajectory toZoneA = drive.trajectoryBuilder(startPose)
-                .forward(46)
-                .splineTo(new Vector2d(7, -33), Math.toRadians(305))
+                .forward(41)
+                .splineTo(new Vector2d(2, -33), Math.toRadians(300))
                 .build();
 
 
         Trajectory zoneAToDown = drive.trajectoryBuilder(toZoneA.end(), true)
-                .splineTo(new Vector2d(-15, -24), Math.toRadians(180))
-                .back(37)
+                .splineTo(new Vector2d(-24, -24), Math.toRadians(180))
+                .back(28)
                 .build();
 
 
         Trajectory downToZoneA = drive.trajectoryBuilder(zoneAToDown.end())
-                .forward(26)
-                .splineTo(new Vector2d(-2, -33), Math.toRadians(305))
+                .forward(21)
+                .splineTo(new Vector2d(-7, -33), Math.toRadians(300))
                 .build();
 
         Trajectory zoneABackUp = drive.trajectoryBuilder(downToZoneA.end())
-                .lineTo(new Vector2d(-8, -33))
+                .lineTo(new Vector2d(-15, -33),
+                        new MecanumConstraints(new DriveConstraints(
+                                30, 30, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
         Trajectory zoneAToShoot = drive.trajectoryBuilder(zoneABackUp.end())
-                .lineToLinearHeading(new Pose2d(-2, 14, Math.toRadians(5.5)))
+                .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(0)),
+                new MecanumConstraints(new DriveConstraints(
+                    40, 30, 0.0,
+                    Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
 
 
 
         Trajectory toZoneB = drive.trajectoryBuilder(startPose)
-                .forward(98)
+                .forward(97)
                 .build();
 
 
         Trajectory zoneBToDown = drive.trajectoryBuilder(toZoneB.end())
-                .back(87)
+                .back(86)
                 .build();
 
 
@@ -100,7 +106,10 @@ public class RedSideShoot extends LinearOpMode {
 
 
         Trajectory zoneBToShoot = drive.trajectoryBuilder(zoneBBackUp.end())
-                .lineToLinearHeading(new Pose2d(-2, 14, Math.toRadians(5.5)))
+                .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(0)),
+                        new MecanumConstraints(new DriveConstraints(
+                                40, 30, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
 
@@ -108,7 +117,7 @@ public class RedSideShoot extends LinearOpMode {
 
         Trajectory toZoneC = drive.trajectoryBuilder(startPose)
                 .forward(87)
-                .splineTo(new Vector2d(48, -33), Math.toRadians(305))
+                .splineTo(new Vector2d(48, -33), Math.toRadians(300))
                 .build();
 
         Trajectory zoneCToDown = drive.trajectoryBuilder(toZoneC.end(), true)
@@ -118,11 +127,14 @@ public class RedSideShoot extends LinearOpMode {
 
         Trajectory downToZoneC = drive.trajectoryBuilder(zoneCToDown.end())
                 .forward(67)
-                .splineTo(new Vector2d(39, -33), Math.toRadians(305))
+                .splineTo(new Vector2d(39, -33), Math.toRadians(300))
                 .build();
 
         Trajectory zoneCToShoot = drive.trajectoryBuilder(downToZoneC.end())
-                .lineToLinearHeading(new Pose2d(-2, 14, Math.toRadians(5.5)))
+                .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(0)),
+                new MecanumConstraints(new DriveConstraints(
+                        40, 30, 0.0,
+                        Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
 
@@ -136,11 +148,29 @@ public class RedSideShoot extends LinearOpMode {
                 .build();
 
         Trajectory wobbleToDown = drive.trajectoryBuilder(new Pose2d(-52, -12, Math.toRadians(0)), false)
-                .strafeRight(12.0)
+                .lineTo(new Vector2d(-52, -24),
+                        new MecanumConstraints(new DriveConstraints(
+                                20, 20, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
 
-        Trajectory shootToPark = drive.trajectoryBuilder(new Pose2d(-2, 14, Math.toRadians(6)))
+        Trajectory shootStrafeLeft = drive.trajectoryBuilder(zoneAToShoot.end())
+                .lineTo(new Vector2d(-2, 19),
+                        new MecanumConstraints(new DriveConstraints(
+                                30, 20, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                .build();
+
+        Trajectory shootStrafeLeft2 = drive.trajectoryBuilder(shootStrafeLeft.end())
+                .lineTo(new Vector2d(-2, 26.5),
+                        new MecanumConstraints(new DriveConstraints(
+                                30, 20, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                .build();
+
+
+        Trajectory shootToPark = drive.trajectoryBuilder(shootStrafeLeft2.end())
                 .forward(11)
                 .build();
 
@@ -161,6 +191,7 @@ public class RedSideShoot extends LinearOpMode {
             arm.release();
             drive.residentSleeper(250);
             arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(zoneAToDown);
             arm.armDown();
 
@@ -169,29 +200,29 @@ public class RedSideShoot extends LinearOpMode {
             arm.grab();
             drive.residentSleeper(500);
             arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(wobbleToDown);
 
             drive.followTrajectory(downToZoneA);
             arm.armDown();
             drive.residentSleeper(1000);
             arm.release();
+            drive.residentSleeper(250);
             arm.armRest();
             drive.residentSleeper(250);
             intake.liftIntake();
             drive.followTrajectory(zoneABackUp);
-            shooter.shoot();
+            shooter.shootAuto();
             drive.followTrajectory(zoneAToShoot);
 
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
-            drive.turn(Math.toRadians(-6)); //turns right?
-            drive.residentSleeper(2000);
+            drive.followTrajectory(shootStrafeLeft);
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
-            drive.turn(Math.toRadians(12.0));   //turns left?
-            drive.residentSleeper(2000);
+            drive.followTrajectory(shootStrafeLeft2);
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
@@ -204,6 +235,7 @@ public class RedSideShoot extends LinearOpMode {
             arm.release();
             drive.residentSleeper(250);
             arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(zoneBToDown);
             arm.armDown();
 
@@ -212,29 +244,29 @@ public class RedSideShoot extends LinearOpMode {
             arm.grab();
             drive.residentSleeper(500);
             arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(wobbleToDown);
 
             drive.followTrajectory(downToZoneB);
             arm.armDown();
             drive.residentSleeper(1000);
             arm.release();
+            drive.residentSleeper(250);
             arm.armRest();
             drive.residentSleeper(250);
             intake.liftIntake();
             drive.followTrajectory(zoneBBackUp);
-            shooter.shoot();
+            shooter.shootAuto();
             drive.followTrajectory(zoneBToShoot);
 
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
-            drive.turn(Math.toRadians(-6)); //turns right?
-            drive.residentSleeper(2000);
+            drive.followTrajectory(shootStrafeLeft);
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
-            drive.turn(Math.toRadians(12.0));   //turns left?
-            drive.residentSleeper(2000);
+            drive.followTrajectory(shootStrafeLeft2);
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
@@ -247,6 +279,7 @@ public class RedSideShoot extends LinearOpMode {
             arm.release();
             drive.residentSleeper(250);
             arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(zoneCToDown);
             arm.armDown();
 
@@ -255,28 +288,28 @@ public class RedSideShoot extends LinearOpMode {
             arm.grab();
             drive.residentSleeper(500);
             arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(wobbleToDown);
 
             drive.followTrajectory(downToZoneC);
             arm.armDown();
             drive.residentSleeper(1000);
             arm.release();
+            drive.residentSleeper(250);
             arm.armRest();
             drive.residentSleeper(250);
             intake.liftIntake();
-            shooter.shoot();
+            shooter.shootAuto();
             drive.followTrajectory(zoneCToShoot);
 
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
-            drive.turn(Math.toRadians(-6)); //turns right?
-            drive.residentSleeper(2000);
+            drive.followTrajectory(shootStrafeLeft);
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
-            drive.turn(Math.toRadians(12.0));   //turns left?
-            drive.residentSleeper(2000);
+            drive.followTrajectory(shootStrafeLeft2);
             intake.pushRing();
             drive.residentSleeper(1000);
             intake.stopRing();
