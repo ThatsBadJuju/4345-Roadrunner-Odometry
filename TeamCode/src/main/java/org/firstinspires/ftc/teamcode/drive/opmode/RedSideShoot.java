@@ -53,7 +53,7 @@ public class RedSideShoot extends LinearOpMode {
 
         Trajectory toZoneA = drive.trajectoryBuilder(startPose)
                 .forward(41)
-                .splineTo(new Vector2d(2, -33), Math.toRadians(300))
+                .splineTo(new Vector2d(2, -31), Math.toRadians(300))
                 .build();
 
 
@@ -65,11 +65,11 @@ public class RedSideShoot extends LinearOpMode {
 
         Trajectory downToZoneA = drive.trajectoryBuilder(zoneAToDown.end())
                 .forward(21)
-                .splineTo(new Vector2d(-7, -33), Math.toRadians(300))
+                .splineTo(new Vector2d(-7, -31), Math.toRadians(300))
                 .build();
 
         Trajectory zoneABackUp = drive.trajectoryBuilder(downToZoneA.end())
-                .lineTo(new Vector2d(-15, -33),
+                .lineTo(new Vector2d(-15, -31),
                         new MecanumConstraints(new DriveConstraints(
                                 30, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
@@ -117,7 +117,7 @@ public class RedSideShoot extends LinearOpMode {
 
         Trajectory toZoneC = drive.trajectoryBuilder(startPose)
                 .forward(87)
-                .splineTo(new Vector2d(48, -33), Math.toRadians(300))
+                .splineTo(new Vector2d(48, -31), Math.toRadians(300))
                 .build();
 
         Trajectory zoneCToDown = drive.trajectoryBuilder(toZoneC.end(), true)
@@ -127,7 +127,7 @@ public class RedSideShoot extends LinearOpMode {
 
         Trajectory downToZoneC = drive.trajectoryBuilder(zoneCToDown.end())
                 .forward(67)
-                .splineTo(new Vector2d(39, -33), Math.toRadians(300))
+                .splineTo(new Vector2d(39, -31), Math.toRadians(300))
                 .build();
 
         Trajectory zoneCToShoot = drive.trajectoryBuilder(downToZoneC.end())
@@ -141,7 +141,7 @@ public class RedSideShoot extends LinearOpMode {
 
 
         Trajectory downToWobble = drive.trajectoryBuilder(new Pose2d(-52, -24, Math.toRadians(0)), false)
-                .lineTo(new Vector2d(-52, -12),
+                .lineTo(new Vector2d(-52, -13),
                         new MecanumConstraints(new DriveConstraints(
                                 20, 20, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))

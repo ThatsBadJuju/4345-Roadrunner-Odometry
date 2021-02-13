@@ -13,6 +13,7 @@ public class Arm {
 
     private int restPosition = -10;
     private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
+    private int outPosition = -500;
     private int downPosition = -775;
     private boolean clawOpen = true;
     private long cooldownTime = 500; //500 milliseconds
@@ -30,7 +31,7 @@ public class Arm {
         long timeSinceGrab = System.currentTimeMillis() - grabbedTime;
 
         if(gp.a) {
-            armRest();
+            armOut();
         }
         else if(gp.b) {
             armUp();
@@ -75,7 +76,13 @@ public class Arm {
         armMotor.setTargetPosition(downPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(0.4);
-}
+    }
+
+    public void armOut() {
+        armMotor.setTargetPosition(outPosition);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(0.4);
+    }
 
     public void grab() {
         armServo.setPosition(0.725);
