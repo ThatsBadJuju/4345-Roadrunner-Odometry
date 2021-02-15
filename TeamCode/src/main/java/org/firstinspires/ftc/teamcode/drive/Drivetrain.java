@@ -38,6 +38,10 @@ public class Drivetrain {
 //    private double i_turn = -0.00001;
 //    private double d_turn = 0;
 
+    private double strafeCoef = 0.7;
+    private long strafedTime = System.currentTimeMillis();
+    private double cooldownTime = 250;
+
 
     public Drivetrain(DcMotor tl, DcMotor bl, DcMotor tr, DcMotor br, Boolean isAuto, Telemetry t, HardwareMap hardwareMap) {
         this.topLeft = tl;
@@ -50,17 +54,43 @@ public class Drivetrain {
     //김정은
     public void controls(Gamepad gp) {
         //TODO: Code Mecanum Bullshit
-        float x = (float)(Math.pow(gp.left_stick_y, 3) * 0.9);
-        float y = (float)(Math.pow(-gp.left_stick_x, 3) * 0.9);
-        float z = (float)(Math.pow(-gp.right_stick_x, 3) * 0.9);
+        long timeSinceStrafeChange = System.currentTimeMillis() - strafedTime;
+
+        if (gp.a && strafeCoef >= 0.1 && timeSinceStrafeChange >= cooldownTime) {
+            strafedTime = System.currentTimeMillis();
+            strafeCoef -= 0.1;
+        }
+        else if(gp.x && strafeCoef <= 0.9 && timeSinceStrafeChange >= cooldownTime) {
+            strafedTime = System.currentTimeMillis();
+            strafeCoef += 0.1;
+        }
+        else if(gp.y && strafeCoef >= 0.01 && timeSinceStrafeChange >= cooldownTime) {
+            strafedTime = System.currentTimeMillis();
+            strafeCoef -= 0.01;
+        }
+        else if(gp.b && strafeCoef <= 0.99 && timeSinceStrafeChange >= cooldownTime) {
+            strafedTime = System.currentTimeMillis();
+            strafeCoef += 0.01;
+        }
+        float x = (float)(Math.pow(gp.left_stick_y, 3));
+        float y = (float)(Math.pow(-gp.left_stick_x, 3));
+        float z = (float)(Math.pow(-gp.right_stick_x, 3));
         if (gp.left_stick_button || gp.right_stick_button || gp.right_trigger >= 0.05) {
             x /=3;
             y /=3;
             z /=3;
         }
-        bottomLeft.setPower(((-x)+(y)+(-z)));
+        float y_corrected = y;
+        if(Math.abs(y) > 0.34) {
+            y_corrected = (float)(y * strafeCoef);
+        }
+        bottomLeft.setPower(((-x)+(y_corrected)+(-z)));
         topLeft.setPower(((-x)+(-y)+(-z)));
-        bottomRight.setPower(((x)+(y)+(-z)));
+        bottomRight.setPower(((x)+(y_corrected)+(-z)));
         topRight.setPower(((x)+(-y)+(-z)));
+    }
+
+    public double getStrafeCoef() {
+        return strafeCoef;
     }
 }
