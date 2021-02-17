@@ -57,11 +57,17 @@ public class Comp2RightArm extends LinearOpMode {
                 .build();
 
         Trajectory strafeLeftShoot = drive.trajectoryBuilder(startToShoot.end())
-                .lineTo(new Vector2d(-2, 19))
+                .lineTo(new Vector2d(-2, 19),
+                        new MecanumConstraints(new DriveConstraints(
+                                30, 30, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
         Trajectory strafeleftShoot2 = drive.trajectoryBuilder(strafeLeftShoot.end())
-                .lineTo(new Vector2d(-2, 26.5))
+                .lineTo(new Vector2d(-2, 26.5),
+                        new MecanumConstraints(new DriveConstraints(
+                                30, 30, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
         Trajectory downToWobble = drive.trajectoryBuilder(new Pose2d(-52, 0, Math.toRadians(0)))
