@@ -25,7 +25,7 @@ public class CorrectTeleOp extends OpMode {
     public void init() {
         //TODO: Initialize Drivetrain Object
         drivetrain = new Drivetrain(hardwareMap.dcMotor.get("frontLeftMotor"), hardwareMap.dcMotor.get("backLeftMotor"), hardwareMap.dcMotor.get("frontRightMotor"), hardwareMap.dcMotor.get("backRightMotor"), false, telemetry, hardwareMap);
-        intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
+        intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
         shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
         // camera = new Camera(hardwareMap);
@@ -47,7 +47,6 @@ public class CorrectTeleOp extends OpMode {
         arm.controls(gamepad1);
         //camera.checkVuforiaObjects(telemetry);
         telemetry.addLine("Yoinker: " + String.valueOf(arm.testServo()));
-        telemetry.addLine("Useless: " + String.valueOf(intake.testLift()));
         telemetry.addLine("Arm: " + String.valueOf(arm.testArm()));
     }
 

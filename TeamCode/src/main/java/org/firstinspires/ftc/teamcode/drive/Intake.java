@@ -7,15 +7,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake {
     private DcMotor intakeMotor;
-    private Servo servo;
     private CRServo crServo;
 
-    private double dropPosition = 0.52;
-    private double liftPosition = 0.39;
-
-    public Intake(DcMotor intakeMotor, Servo servo, CRServo crServo) {
+    public Intake(DcMotor intakeMotor, CRServo crServo) {
         this.intakeMotor = intakeMotor;
-        this.servo = servo;
         this.crServo = crServo;
     }
 
@@ -28,13 +23,6 @@ public class Intake {
         }
         else {
             nosucc();
-        }
-
-        if(gp.dpad_down) {
-            dropIntake();
-        }
-        else if(gp.dpad_up) {
-            liftIntake();
         }
 
         if(gp.dpad_left) {
@@ -56,18 +44,6 @@ public class Intake {
 
     public void nosucc() {
         intakeMotor.setPower(0.0);
-    }
-
-    public void dropIntake() {
-        servo.setPosition(dropPosition);
-    }
-
-    public void liftIntake() {
-        servo.setPosition(liftPosition);
-    }
-
-    public double testLift() {
-        return servo.getPosition();
     }
 
     public void pushRing() {

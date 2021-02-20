@@ -40,7 +40,7 @@ public class Comp2RightArm extends LinearOpMode {
 
 
         //scan rings here 0, 1, 4 = A, B, C
-        int rings = 0;
+        int rings = 4;
 
 //        long startTime = System.currentTimeMillis();
 //        long endTime = System.currentTimeMillis();
@@ -95,7 +95,7 @@ public class Comp2RightArm extends LinearOpMode {
                 .build();
 
         Trajectory wobbleToZoneA = drive.trajectoryBuilder(downToWobble.end())
-                .splineTo(new Vector2d(5, -20), Math.toRadians(345))
+                .splineTo(new Vector2d(8, -20), Math.toRadians(345))
                 .build();
 
 

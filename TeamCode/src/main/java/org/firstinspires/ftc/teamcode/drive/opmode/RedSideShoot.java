@@ -26,7 +26,7 @@ public class RedSideShoot extends LinearOpMode {
     public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.servo.get("useless"), hardwareMap.crservo.get("legsOfDoom"));
+        intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
         shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
         camera = new Camera(hardwareMap);
@@ -210,7 +210,7 @@ public class RedSideShoot extends LinearOpMode {
             drive.residentSleeper(250);
             arm.armRest();
             drive.residentSleeper(250);
-            intake.liftIntake();
+            //intake.liftIntake();
             drive.followTrajectory(zoneABackUp);
             shooter.shootAuto();
             drive.followTrajectory(zoneAToShoot);
@@ -254,7 +254,7 @@ public class RedSideShoot extends LinearOpMode {
             drive.residentSleeper(250);
             arm.armRest();
             drive.residentSleeper(250);
-            intake.liftIntake();
+            //intake.liftIntake();
             drive.followTrajectory(zoneBBackUp);
             shooter.shootAuto();
             drive.followTrajectory(zoneBToShoot);
@@ -298,7 +298,7 @@ public class RedSideShoot extends LinearOpMode {
             drive.residentSleeper(250);
             arm.armRest();
             drive.residentSleeper(250);
-            intake.liftIntake();
+            //intake.liftIntake();
             shooter.shootAuto();
             drive.followTrajectory(zoneCToShoot);
 
