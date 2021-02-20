@@ -21,7 +21,7 @@ public class Shooter {
     }
 
     public void shoot() {
-        shooter.setPower(-0.65);
+        shooter.setPower(-0.7);
     }
 
     public void shootAuto() {

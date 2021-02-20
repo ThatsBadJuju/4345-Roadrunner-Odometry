@@ -38,7 +38,7 @@ public class Drivetrain {
 //    private double i_turn = -0.00001;
 //    private double d_turn = 0;
 
-    private double strafeCoef = 0.7;
+    private double strafeCoef = 0.75;
     private long strafedTime = System.currentTimeMillis();
     private double cooldownTime = 250;
 
@@ -56,22 +56,22 @@ public class Drivetrain {
         //TODO: Code Mecanum Bullshit
         long timeSinceStrafeChange = System.currentTimeMillis() - strafedTime;
 
-        if (gp.a && strafeCoef >= 0.1 && timeSinceStrafeChange >= cooldownTime) {
-            strafedTime = System.currentTimeMillis();
-            strafeCoef -= 0.1;
-        }
-        else if(gp.x && strafeCoef <= 0.9 && timeSinceStrafeChange >= cooldownTime) {
-            strafedTime = System.currentTimeMillis();
-            strafeCoef += 0.1;
-        }
-        else if(gp.y && strafeCoef >= 0.01 && timeSinceStrafeChange >= cooldownTime) {
-            strafedTime = System.currentTimeMillis();
-            strafeCoef -= 0.01;
-        }
-        else if(gp.b && strafeCoef <= 0.99 && timeSinceStrafeChange >= cooldownTime) {
-            strafedTime = System.currentTimeMillis();
-            strafeCoef += 0.01;
-        }
+//        if (gp.a && strafeCoef >= 0.1 && timeSinceStrafeChange >= cooldownTime) {
+//            strafedTime = System.currentTimeMillis();
+//            strafeCoef -= 0.1;
+//        }
+//        else if(gp.x && strafeCoef <= 0.9 && timeSinceStrafeChange >= cooldownTime) {
+//            strafedTime = System.currentTimeMillis();
+//            strafeCoef += 0.1;
+//        }
+//        else if(gp.y && strafeCoef >= 0.01 && timeSinceStrafeChange >= cooldownTime) {
+//            strafedTime = System.currentTimeMillis();
+//            strafeCoef -= 0.01;
+//        }
+//        else if(gp.b && strafeCoef <= 0.99 && timeSinceStrafeChange >= cooldownTime) {
+//            strafedTime = System.currentTimeMillis();
+//            strafeCoef += 0.01;
+//        }
         float x = (float)(Math.pow(gp.left_stick_y, 3));
         float y = (float)(Math.pow(-gp.left_stick_x, 3));
         float z = (float)(Math.pow(-gp.right_stick_x, 3));
