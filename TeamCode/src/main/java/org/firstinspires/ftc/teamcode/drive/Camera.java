@@ -100,6 +100,16 @@ public class Camera {
 
                 int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
+                    
+                    String numRings = recognition.getLabel();
+                    if(Math.abs(recognition.getTop() - recognition.getBottom()) < Math.abs(recognition.getRight() - recognition.getLeft())
+                    && recognition.getLabel().equals("Quad")) {
+                        numRings = "Single";
+                    } else if(Math.abs(recognition.getTop() - recognition.getBottom()) > Math.abs(recognition.getRight() - recognition.getLeft())
+                    && recognition.getLabel().equals("Single")) {
+                        numRings = "Quad";
+                    }
+
                     tele.addData(String.format("label (%d)", i), recognition.getLabel());
                     tele.addData(String.format("left,top (%d)", i), "%.03f , %.03f",
                             recognition.getLeft(), recognition.getTop());
@@ -107,8 +117,8 @@ public class Camera {
                             recognition.getRight(), recognition.getBottom());
 
                     // check if disc is 4 stack or single
-                    if(recognition.getLabel().equals("Quad")) return 4;
-                    else if(recognition.getLabel().equals("Single")) return 1;
+                    if(numRings.equals("Quad")) return 4;
+                    else if(numRings.equals("Single")) return 1;
                 }
 
             }
