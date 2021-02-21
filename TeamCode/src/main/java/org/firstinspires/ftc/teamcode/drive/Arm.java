@@ -11,10 +11,11 @@ public class Arm {
     public Servo armServo;
     Telemetry telemetry;
 
-    private int restPosition = -10;
+    private int restPosition = 0;
     private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
     private int outPosition = -500;
     private int downPosition = -675;
+    private int dropPosition = -775;
     private boolean clawOpen = true;
     private long cooldownTime = 500; //500 milliseconds
     private long grabbedTime = System.currentTimeMillis();
@@ -74,6 +75,12 @@ public class Arm {
 
     public void armDown() {
         armMotor.setTargetPosition(downPosition);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(0.4);
+    }
+
+    public void armDrop() {
+        armMotor.setTargetPosition(dropPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(0.4);
     }
