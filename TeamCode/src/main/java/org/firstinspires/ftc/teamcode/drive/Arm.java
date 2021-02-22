@@ -14,7 +14,7 @@ public class Arm {
     private int restPosition = 0;
     private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
     private int outPosition = -500;
-    private int downPosition = -675;
+    private int downPosition = -700;
     private int dropPosition = -775;
     private boolean clawOpen = true;
     private long cooldownTime = 500; //500 milliseconds
