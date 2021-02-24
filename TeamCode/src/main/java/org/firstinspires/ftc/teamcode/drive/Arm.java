@@ -11,7 +11,7 @@ public class Arm {
     public Servo armServo;
     Telemetry telemetry;
 
-    private int restPosition = 0;
+    private int restPosition = -5;
     private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
     private int outPosition = -500;
     private int downPosition = -700;

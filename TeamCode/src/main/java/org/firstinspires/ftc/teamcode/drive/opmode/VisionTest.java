@@ -35,7 +35,8 @@ public class VisionTest extends OpMode {
     public void loop() {
         int rings = 0;
         rings = camera.checkTFODObjects(telemetry);
-        telemetry.addData("Number of Rings: ", rings);
+        telemetry.update();
+        // telemetry.addData("Number of Rings: ", rings);
 //        long startTime = System.currentTimeMillis();
 //        long endTime = System.currentTimeMillis();
 //        while(rings == 0 && (endTime - startTime)/1000.0 < 2) {

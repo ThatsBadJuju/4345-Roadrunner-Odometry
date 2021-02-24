@@ -21,11 +21,11 @@ public class Shooter {
     }
 
     public void shoot() {
-        shooter.setPower(-0.7);
+        shooter.setPower(-0.68);
     }
 
     public void shootAuto() {
-        shooter.setPower(-0.575);
+        shooter.setPower(-0.625);
     }
 
     public void reverseShoot() {

@@ -127,6 +127,8 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
 
                         drive.followTrajectoryAsync(traj1);
 
+                        telemetry.addLine(traj1.toString());
+
                         currentMode = Mode.AUTOMATIC_CONTROL;
                     }
                     break;

@@ -29,9 +29,9 @@ public class Comp2RightArm extends LinearOpMode {
         intake = new Intake(hardwareMap.crservo.get("legsOfDoom"));
         shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
-//        camera = new Camera(hardwareMap);
-//
-//        camera.activate();
+        camera = new Camera(hardwareMap);
+
+        camera.activate();
 
         Pose2d startPose = new Pose2d(-63, 0, Math.toRadians(0));
 
@@ -42,18 +42,24 @@ public class Comp2RightArm extends LinearOpMode {
         //scan rings here 0, 1, 4 = A, B, C
         int rings = 0;
 
-//        long startTime = System.currentTimeMillis();
-//        long endTime = System.currentTimeMillis();
-//        while(rings == 0 && (endTime - startTime)/1000.0 < 3.5) {
-//            rings = camera.checkTFODObjects(telemetry);
-//            endTime = System.currentTimeMillis();
-//        }
-//        telemetry.addData("Number of Rings: ", rings);
-//        telemetry.update();
+        long startTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
+        while(rings == 0 && (endTime - startTime)/1000.0 < 3.5) {
+            rings = camera.checkTFODObjects(telemetry);
+            endTime = System.currentTimeMillis();
+        }
+        telemetry.addData("Number of Rings: ", rings);
+        telemetry.update();
 
 
         Trajectory startToShoot = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-2, 11.5))
+                .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(0)),
+                        new MecanumConstraints(new DriveConstraints(
+                                35, 30, 0.0,
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                .addTemporalMarker(1.5, () -> {
+                    arm.armOut();
+                })
                 .build();
 
         Trajectory strafeLeftShoot = drive.trajectoryBuilder(startToShoot.end())
@@ -78,16 +84,16 @@ public class Comp2RightArm extends LinearOpMode {
                 .build();
 
         Trajectory wobbleToRing = drive.trajectoryBuilder(downToWobble.end())
-                .lineTo(new Vector2d(-30, -11),
+                .lineToLinearHeading(new Pose2d(-30, -11, Math.toRadians(5)),
                         new MecanumConstraints(new DriveConstraints(
-                                30, 30, 0.0,
+                                20, 20, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
 
 
-        Trajectory shootToZoneA = drive.trajectoryBuilder(strafeleftShoot2.end())
-                .splineTo(new Vector2d(26, -24), Math.toRadians(300))
+        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(15)))
+                .lineToLinearHeading(new Pose2d(14, -20, Math.toRadians(0)))
                 .build();
 
         Trajectory zoneAToDown = drive.trajectoryBuilder(shootToZoneA.end(), true)
@@ -95,13 +101,20 @@ public class Comp2RightArm extends LinearOpMode {
                 .build();
 
         Trajectory wobbleToZoneA = drive.trajectoryBuilder(downToWobble.end())
-                .splineTo(new Vector2d(9, -20), Math.toRadians(0))
+                .splineTo(new Vector2d(4, -20), Math.toRadians(0))
+                .build();
+
+        Trajectory zoneAToPark = drive.trajectoryBuilder(wobbleToZoneA.end())
+                .lineToLinearHeading(new Pose2d(12, 0, Math.toRadians(0)))
+                .addTemporalMarker(0.5, () -> {
+                    arm.grab();
+                })
                 .build();
 
 
 
-        Trajectory shootToZoneB = drive.trajectoryBuilder(strafeleftShoot2.end())
-                .lineTo(new Vector2d(36, 0))
+        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(15)))
+                .lineToLinearHeading(new Pose2d(36, 4, Math.toRadians(0)))
                 .build();
 
         Trajectory zoneBToDown = drive.trajectoryBuilder(shootToZoneB.end(), true)
@@ -109,17 +122,20 @@ public class Comp2RightArm extends LinearOpMode {
                 .build();
 
         Trajectory ringToZoneB = drive.trajectoryBuilder(wobbleToRing.end())
-                .splineTo(new Vector2d(26, 0), Math.toRadians(0))
+                .splineTo(new Vector2d(26, 4), Math.toRadians(0))
                 .build();
 
         Trajectory zoneBToPark = drive.trajectoryBuilder(ringToZoneB.end(), true)
-                .splineTo(new Vector2d(9, 0), Math.toRadians(180))
+                .splineTo(new Vector2d(12, 4), Math.toRadians(180))
+                .addTemporalMarker(0.5, () -> {
+                    arm.grab();
+                })
                 .build();
 
 
 
-        Trajectory shootToZoneC = drive.trajectoryBuilder(strafeleftShoot2.end())
-                .lineTo(new Vector2d(60, -24))
+        Trajectory shootToZoneC = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(15)))
+                .lineToLinearHeading(new Pose2d(60, -20, Math.toRadians(0)))
                 .build();
 
         Trajectory zoneCToDown = drive.trajectoryBuilder(shootToZoneC.end(), true)
@@ -128,18 +144,21 @@ public class Comp2RightArm extends LinearOpMode {
                 .build();
 
         Trajectory ringToRing2 = drive.trajectoryBuilder(wobbleToRing.end())
-                .lineTo(new Vector2d(-26, -11),
+                .lineToLinearHeading(new Pose2d(-26, -11, Math.toRadians(5)),
                         new MecanumConstraints(new DriveConstraints(
                                 30, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .build();
 
         Trajectory ring2ToZoneC = drive.trajectoryBuilder(ringToRing2.end())
-                .splineTo(new Vector2d(50, -24), Math.toRadians(0))
+                .lineToLinearHeading(new Pose2d(50, -20, Math.toRadians(0)))
                 .build();
 
         Trajectory zoneCToPark = drive.trajectoryBuilder(ring2ToZoneC.end())
-                .lineTo(new Vector2d(9, -24))
+                .lineTo(new Vector2d(9, -20))
+                .addTemporalMarker(0.5, () -> {
+                    arm.grab();
+                })
                 .build();
 
 
@@ -149,17 +168,18 @@ public class Comp2RightArm extends LinearOpMode {
 
         if(isStopRequested()) return;
 
-        arm.armOut();
-        shooter.shoot();
+        shooter.shootAuto();
         drive.followTrajectory(startToShoot);
         intake.pushRing();
         drive.residentSleeper(1250);
         intake.stopRing();
-        drive.followTrajectory(strafeLeftShoot);
+//        drive.followTrajectory(strafeLeftShoot);
+        drive.turn(Math.toRadians(9));
         intake.pushRing();
         drive.residentSleeper(1250);
         intake.stopRing();
-        drive.followTrajectory(strafeleftShoot2);
+//        drive.followTrajectory(strafeleftShoot2);
+        drive.turn(Math.toRadians(6));
         intake.pushRing();
         drive.residentSleeper(1250);
         intake.stopRing();
@@ -189,24 +209,74 @@ public class Comp2RightArm extends LinearOpMode {
             arm.release();
             drive.residentSleeper(250);
             arm.armRest();
+            drive.followTrajectory(zoneAToPark);
 
         }
         else if(rings == 1) {
             drive.followTrajectory(shootToZoneB);
+            drive.residentSleeper(250);
+            arm.armDrop();
+            drive.residentSleeper(500);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(zoneBToDown);
+            arm.armDrop();
             drive.followTrajectory(downToWobble);
+            drive.residentSleeper(500);
+            arm.grab();
+            drive.residentSleeper(500);
+            arm.armOut();
+            drive.residentSleeper(250);
+            shooter.shoot();
+            intake.pushRing();
             drive.followTrajectory(wobbleToRing);
+            drive.residentSleeper(1500);
+            shooter.stopShooter();
+            intake.stopRing();
             drive.followTrajectory(ringToZoneB);
+            drive.residentSleeper(250);
+            arm.armDrop();
+            drive.residentSleeper(500);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armRest();
             drive.followTrajectory(zoneBToPark);
         }
         else if(rings == 4) {
             drive.followTrajectory(shootToZoneC);
+            arm.armDrop();
+            drive.residentSleeper(500);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armUp();
+            drive.residentSleeper(250);
             drive.followTrajectory(zoneCToDown);
+            arm.armDrop();
             drive.followTrajectory(downToWobble);
+            drive.residentSleeper(500);
+            arm.grab();
+            drive.residentSleeper(500);
+            arm.armOut();
+            drive.residentSleeper(250);
+            shooter.shoot();
+            intake.pushRing();
             drive.followTrajectory(wobbleToRing);
+            drive.residentSleeper(1500);
             drive.followTrajectory(ringToRing2);
+            drive.residentSleeper(1000);
+            shooter.stopShooter();
+            intake.stopRing();
             drive.followTrajectory(ring2ToZoneC);
+            arm.armDrop();
+            drive.residentSleeper(500);
+            arm.release();
+            drive.residentSleeper(250);
+            arm.armRest();
+            drive.residentSleeper(250);
             drive.followTrajectory(zoneCToPark);
         }
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 }

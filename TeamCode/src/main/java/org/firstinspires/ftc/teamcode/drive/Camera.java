@@ -77,7 +77,7 @@ public class Camera {
         // Activates tfod model (zoom is to ensure that the model can be more accurate in detecting)
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(1.0, 1.78); // values can change (don't zoom cuz not necessary)
+            tfod.setZoom(1.0, 1.5); // values can change (don't zoom cuz not necessary)
         }
         // Activates field localization
         // targetsUltimateGoal.activate();
@@ -110,7 +110,7 @@ public class Camera {
                         numRings = "Quad";
                     }
 
-                    tele.addData(String.format("label (%d)", i), recognition.getLabel());
+                    tele.addData(String.format("label (%d)", i), numRings);
                     tele.addData(String.format("left,top (%d)", i), "%.03f , %.03f",
                             recognition.getLeft(), recognition.getTop());
                     tele.addData(String.format("right,bottom (%d)", i), "%.03f , %.03f",
@@ -145,7 +145,7 @@ public class Camera {
         int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.6f; // if 80% confident, then the detection is correct
+        tfodParameters.minResultConfidence = 0.5f; // if 80% confident, then the detection is correct
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
