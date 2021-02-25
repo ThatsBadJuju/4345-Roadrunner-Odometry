@@ -6,24 +6,24 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake {
-    //private DcMotor intakeMotor;
+    private DcMotor intakeMotor;
     private CRServo crServo;
 
-    public Intake(CRServo crServo) {
-        //this.intakeMotor = intakeMotor;
+    public Intake(DcMotor intakeMotor, CRServo crServo) {
+        this.intakeMotor = intakeMotor;
         this.crServo = crServo;
     }
 
     public void controls(Gamepad gp) {
-//        if(gp.left_bumper) {
-//            unsucc();
-//        }
-//        else if(gp.right_bumper) {
-//            succ();
-//        }
-//        else {
-//            nosucc();
-//        }
+        if(gp.left_bumper) {
+            unsucc();
+        }
+        else if(gp.right_bumper) {
+            succ();
+        }
+        else {
+            nosucc();
+        }
 
         if(gp.dpad_left) {
             reverseRing();
@@ -34,17 +34,17 @@ public class Intake {
         else stopRing();
     }
 
-//    public void succ() {
-//        intakeMotor.setPower(-0.65);
-//    }
-//
-//    public void unsucc() {
-//        intakeMotor.setPower(0.3);
-//    }
-//
-//    public void nosucc() {
-//        intakeMotor.setPower(0.0);
-//    }
+    public void succ() {
+        intakeMotor.setPower(-0.6);
+    }
+
+    public void unsucc() {
+        intakeMotor.setPower(0.3);
+    }
+
+    public void nosucc() {
+        intakeMotor.setPower(0.0);
+    }
 
     public void pushRing() {
         crServo.setPower(0.5);

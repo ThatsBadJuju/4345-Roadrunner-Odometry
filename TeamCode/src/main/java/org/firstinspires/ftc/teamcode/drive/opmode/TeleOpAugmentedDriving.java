@@ -4,6 +4,8 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -73,7 +75,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // Initialize custom cancelable SampleMecanumDrive class
         SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
-        Intake intake = new Intake(/*hardwareMap.dcMotor.get("intakeMotor"), */hardwareMap.crservo.get("legsOfDoom"));
+        Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
         Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         Arm arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
 
@@ -140,7 +142,10 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         // We switch the state to AUTOMATIC_CONTROL
 
                         Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
-                                .lineToLinearHeading(drivePosition)
+                                .lineToLinearHeading(drivePosition,
+                      new MecanumConstraints(new DriveConstraints(
+                              50, 30, 0.0,
+                              Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                                 .build();
 
                         drive.followTrajectoryAsync(traj1);

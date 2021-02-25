@@ -12,10 +12,10 @@ public class Arm {
     Telemetry telemetry;
 
     private int restPosition = -5;
-    private int upPosition = -200;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
-    private int outPosition = -500;
-    private int downPosition = -700;
-    private int dropPosition = -775;
+    private int upPosition = -100;  //almost directly upwards (maybe closer to robot side by 10-15 degrees)
+    private int outPosition = -400;
+    private int downPosition = -525;
+    private int dropPosition = -675;
     private boolean clawOpen = true;
     private long cooldownTime = 500; //500 milliseconds
     private long grabbedTime = System.currentTimeMillis();
@@ -32,10 +32,10 @@ public class Arm {
         long timeSinceGrab = System.currentTimeMillis() - grabbedTime;
 
         if(gp.a) {
-            armOut();
+            armUp();
         }
         else if(gp.b) {
-            armUp();
+            armOut();
         }
         else if(gp.y) {
             armDown();
@@ -89,7 +89,7 @@ public class Arm {
         armMotor.setTargetPosition(outPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(0.4);
-    }
+}
 
     public void grab() {
         armServo.setPosition(0.725);
