@@ -102,10 +102,10 @@ public class Camera {
                 for (Recognition recognition : updatedRecognitions) {
                     
                     String numRings = recognition.getLabel();
-                    if(Math.abs(recognition.getTop() - recognition.getBottom()) < Math.abs(recognition.getRight() - recognition.getLeft())
+                    if(1.69 * Math.abs(recognition.getTop() - recognition.getBottom()) < Math.abs(recognition.getRight() - recognition.getLeft())
                     && recognition.getLabel().equals("Quad")) {
                         numRings = "Single";
-                    } else if(1.420 * Math.abs(recognition.getTop() - recognition.getBottom()) > Math.abs(recognition.getRight() - recognition.getLeft())
+                    } else if(1.69 * Math.abs(recognition.getTop() - recognition.getBottom()) > Math.abs(recognition.getRight() - recognition.getLeft())
                     && recognition.getLabel().equals("Single")) {
                         numRings = "Quad";
                     }

@@ -94,6 +94,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         headingController.setInputBounds(-Math.PI, Math.PI);
 
         waitForStart();
+        arm.armDown();
 
         if (isStopRequested()) return;
 
@@ -144,7 +145,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
                                 .lineToLinearHeading(drivePosition,
                       new MecanumConstraints(new DriveConstraints(
-                              50, 30, 0.0,
+                              55, 40, 0.0,
                               Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                                 .build();
 
