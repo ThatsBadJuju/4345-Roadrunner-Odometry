@@ -38,6 +38,10 @@ public class Intake {
         intakeMotor.setPower(-0.7);
     }
 
+    public void autoSucc(double power) {
+        intakeMotor.setPower(-power);
+    }
+
     public void unsucc() {
         intakeMotor.setPower(0.3);
     }

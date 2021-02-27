@@ -77,7 +77,7 @@ public class Camera {
         // Activates tfod model (zoom is to ensure that the model can be more accurate in detecting)
         if (tfod != null) {
             tfod.activate();
-            tfod.setZoom(1.0, 1.77); // values can change (don't zoom cuz not necessary)
+            tfod.setZoom(1.4, 1.77); // values can change (don't zoom cuz not necessary)
         }
         // Activates field localization
         // targetsUltimateGoal.activate();
@@ -145,7 +145,7 @@ public class Camera {
         int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.5f; // if 40% confident, then the detection is correct
+        tfodParameters.minResultConfidence = 0.45f; // if 40% confident, then the detection is correct
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 

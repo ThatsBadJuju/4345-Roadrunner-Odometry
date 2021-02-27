@@ -28,6 +28,10 @@ public class Shooter {
         shooter.setPower(-0.625);
     }
 
+    public void shootFar(double power) {
+        shooter.setPower(-power);
+    }
+
     public void reverseShoot() {
         shooter.setPower(0.1);
     }

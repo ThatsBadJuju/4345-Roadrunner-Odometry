@@ -12,10 +12,10 @@ public class Arm {
     Telemetry telemetry;
 
     private int restPosition = -5;
-    private int upPosition = -100;  //100 = 30 degrees --> 3.33 = 1 degree
-    private int outPosition = -400;
+    private int upPosition = -50;  //100 = 30 degrees --> 3.33 = 1 degree
+    private int outPosition = -425;
     private int downPosition = -525;
-    private int dropPosition = -675;
+    private int dropPosition = -640;
     private int hitRingPosition = -750;
     private boolean clawOpen = true;
     private long cooldownTime = 500; //500 milliseconds
@@ -40,6 +40,9 @@ public class Arm {
         }
         else if(gp.y) {
             armDown();
+        }
+        else if(gp.dpad_up) {
+            armRest();
         }
 
 //        if(gp.right_bumper) {

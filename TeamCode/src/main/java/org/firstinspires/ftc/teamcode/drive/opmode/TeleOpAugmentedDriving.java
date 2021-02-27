@@ -71,6 +71,8 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
     private Vector2d targetPosition = new Vector2d(72, 0);
 
+    private long cooldownTime = 300; //300 milliseconds
+
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize custom cancelable SampleMecanumDrive class
@@ -93,12 +95,16 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
         headingController.setInputBounds(-Math.PI, Math.PI);
 
+        long grabbedTime = System.currentTimeMillis();
+
         waitForStart();
         arm.armDown();
+
 
         if (isStopRequested()) return;
 
         while (opModeIsActive() && !isStopRequested()) {
+            long timeSinceGrab = System.currentTimeMillis() - grabbedTime;
             // Update the drive class
             drive.update();
 
@@ -137,6 +143,11 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         );
                     }
 
+//                    if(gamepad1.dpad_down && timeSinceGrab >= cooldownTime) {
+//                        grabbedTime = System.currentTimeMillis();
+//                        drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, -poseEstimate.getHeading())));
+//                    }
+
                   if (gamepad1.left_stick_button) {
                         // If the B button is pressed on gamepad1, we generate a lineTo()
                         // trajectory on the fly and follow it
@@ -145,8 +156,8 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
                                 .lineToLinearHeading(drivePosition,
                       new MecanumConstraints(new DriveConstraints(
-                              55, 40, 0.0,
-                              Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                              60, 40, 0.0,
+                              Math.toRadians(235.0), Math.toRadians(235.0), 0.0), 13.9))
                                 .build();
 
                         drive.followTrajectoryAsync(traj1);
