@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Arm {
     public DcMotor armMotor;
     public Servo armServo;
+    public AnalogInput potentiometer;
     Telemetry telemetry;
 
     private int restPosition = -5;
@@ -21,12 +23,13 @@ public class Arm {
     private long cooldownTime = 500; //500 milliseconds
     private long grabbedTime = System.currentTimeMillis();
 
-    public Arm(DcMotor armMotor, Servo armServo) {
+    public Arm(DcMotor armMotor, Servo armServo, AnalogInput potentiometer) {
         this.armMotor = armMotor;
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armMotor.setPower(0.0);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.armServo = armServo;
+        this.potentiometer = potentiometer;
     }
 
     public void controls(Gamepad gp) {
@@ -63,6 +66,16 @@ public class Arm {
                 clawOpen = true;
             }
         }
+    }
+
+    public double getVoltage() {
+        return potentiometer.getVoltage();
+    }
+
+    public double getAngle() {
+        double x = potentiometer.getVoltage();
+        double sqrtFunction = Math.sqrt(21870000*x*x-24057000*x+19847025);
+        return (2700*x + 4455 - sqrtFunction)/(20*x);
     }
 
     public void armRest() {

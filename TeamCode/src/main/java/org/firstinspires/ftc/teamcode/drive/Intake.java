@@ -15,10 +15,10 @@ public class Intake {
     }
 
     public void controls(Gamepad gp) {
-        if(gp.left_bumper) {
+        if(gp.left_trigger >= 0.05) {
             unsucc();
         }
-        else if(gp.right_bumper) {
+        else if(gp.left_bumper) {
             succ();
         }
         else {
@@ -51,7 +51,7 @@ public class Intake {
     }
 
     public void pushRing() {
-        crServo.setPower(0.5);
+        crServo.setPower(0.9);
     }
 
     public void reverseRing() {

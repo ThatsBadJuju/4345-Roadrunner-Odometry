@@ -7,9 +7,14 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.acmerobotics.roadrunner.util.Angle;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
@@ -17,6 +22,8 @@ import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
+
+import static org.firstinspires.ftc.teamcode.drive.opmode.TuningController.rpmToTicksPerSecond;
 
 /**
  * This opmode demonstrates how one can augment driver control by following Road Runner arbitrary
@@ -46,6 +53,9 @@ import org.firstinspires.ftc.teamcode.drive.Shooter;
  */
 @TeleOp(group = "advanced")
 public class TeleOpAugmentedDriving extends LinearOpMode {
+    // Copy your PIDF Coefficients here
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(50, 0, 10, 11.9);
+
     // Define 2 states, drive control or automatic control
     enum Mode {
         DRIVER_CONTROL,
@@ -79,7 +89,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
         Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
         Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
-        Arm arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"));
+        Arm arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
 
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto
@@ -96,6 +106,51 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         headingController.setInputBounds(-Math.PI, Math.PI);
 
         long grabbedTime = System.currentTimeMillis();
+
+        //_________________________________________________________________________________//
+
+        // SETUP MOTOR //
+        // Change my id
+        DcMotorEx myMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+
+        // Reverse as appropriate
+        myMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Turns on bulk reading
+        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        // RUE limits max motor speed to 85% by default
+        // Raise that limit to 100%
+        MotorConfigurationType motorConfigurationType = myMotor.getMotorType().clone();
+        motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+        myMotor.setMotorType(motorConfigurationType);
+
+        // Turn on RUN_USING_ENCODER
+        myMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Set PIDF Coefficients with voltage compensated feedforward value
+        myMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                MOTOR_VELO_PID.p, MOTOR_VELO_PID.i, MOTOR_VELO_PID.d,
+                MOTOR_VELO_PID.f * 12 / hardwareMap.voltageSensor.iterator().next().getVoltage()
+        ));
+
+        // Insert whatever other initialization stuff you do here
+        //4000 = power shot, 4175 = auto
+        double highGoalVelo = 5150;
+        double powerShotVelo = 4000;
+        double off = 0;
+        double targetVelocity = rpmToTicksPerSecond(highGoalVelo);
+        boolean isHighVelo = true;
+        boolean isLowVelo = false;
+
+
+        long time = System.currentTimeMillis();
+        long cooldownTime = 500;
+
+        //_______________________________________________________________________//
+
 
         waitForStart();
         arm.armDown();
@@ -156,13 +211,49 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
                                 .lineToLinearHeading(drivePosition,
                       new MecanumConstraints(new DriveConstraints(
-                              60, 40, 0.0,
+                              55, 50, 0.0,
                               Math.toRadians(235.0), Math.toRadians(235.0), 0.0), 13.9))
                                 .build();
 
                         drive.followTrajectoryAsync(traj1);
 
                         currentMode = Mode.AUTOMATIC_CONTROL;
+                    }
+
+
+                    myMotor.setVelocity(targetVelocity);
+
+                    double motorVelo = myMotor.getVelocity();
+                    telemetry.addData("target", targetVelocity);
+                    telemetry.addData("velocity", motorVelo);
+                    telemetry.addData("error", targetVelocity - motorVelo);
+
+                    long timeSinceChange = System.currentTimeMillis() - time;
+                    if(timeSinceChange >= cooldownTime) {
+                        if(gamepad1.right_bumper && isHighVelo) {
+                            time = System.currentTimeMillis();
+                            targetVelocity = rpmToTicksPerSecond(off);
+                            isHighVelo = false;
+                            isLowVelo = false;
+                        }
+                        else if(gamepad1.right_bumper) {
+                            time = System.currentTimeMillis();
+                            targetVelocity = rpmToTicksPerSecond(highGoalVelo);
+                            isHighVelo = true;
+                            isLowVelo = false;
+                        }
+                        else if(gamepad1.right_trigger >= 0.05 && isLowVelo) {
+                            time = System.currentTimeMillis();
+                            targetVelocity = rpmToTicksPerSecond(off);
+                            isHighVelo = false;
+                            isLowVelo = false;
+                        }
+                        else if(gamepad1.right_trigger >= 0.05) {
+                            time = System.currentTimeMillis();
+                            targetVelocity = rpmToTicksPerSecond(powerShotVelo);
+                            isHighVelo = false;
+                            isLowVelo = true;
+                        }
                     }
 
 //                  if(gamepad1.b) {
@@ -273,7 +364,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                     break;
             }
             intake.controls(gamepad1);
-            shooter.controls(gamepad1);
+            //shooter.controls(gamepad1);
             arm.controls(gamepad1);
         }
     }
