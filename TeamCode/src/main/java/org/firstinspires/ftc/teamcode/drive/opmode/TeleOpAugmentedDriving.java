@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.teamcode.drive.Arm;
+import org.firstinspires.ftc.teamcode.drive.ArmNoEncoder;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -74,7 +75,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
     double targetAHeading = Math.toRadians(90);
 
     // The location we want the bot to automatically go to when we press the B button
-    private Pose2d drivePosition = new Pose2d(-16, 0, Math.toRadians(0));
+    private Pose2d drivePosition = new Pose2d(0, -8, Math.toRadians(0));
 
     // The angle we want to align to when we press Y
     double targetAngle = Math.toRadians(45);
@@ -89,7 +90,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
         Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
         Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
-        Arm arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
+        ArmNoEncoder arm = new ArmNoEncoder(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
 
         // We want to turn off velocity control for teleop
         // Velocity control per wheel is not necessary outside of motion profiled auto
@@ -153,7 +154,6 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
 
         waitForStart();
-        arm.armDown();
 
 
         if (isStopRequested()) return;
@@ -211,7 +211,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
                                 .lineToLinearHeading(drivePosition,
                       new MecanumConstraints(new DriveConstraints(
-                              55, 50, 0.0,
+                              55, 55, 0.0,
                               Math.toRadians(235.0), Math.toRadians(235.0), 0.0), 13.9))
                                 .build();
 
