@@ -168,7 +168,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(2)),
                         new MecanumConstraints(new DriveConstraints(
                                 40, 30, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(1.5, () -> {
                     arm.armOut();
                 })
@@ -179,12 +179,12 @@ public class StateMachineGulag extends LinearOpMode {
                 .lineTo(new Vector2d(-48, -11),
                         new MecanumConstraints(new DriveConstraints(
                                 30, 30, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
 
 
-        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(17)))
+        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(15)))
                 .lineToLinearHeading(new Pose2d(14, -20, Math.toRadians(0)))
                 .build();
 
@@ -209,7 +209,7 @@ public class StateMachineGulag extends LinearOpMode {
 
 
 
-        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(17)))
+        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(15)))
                 .lineToLinearHeading(new Pose2d(36, 4, Math.toRadians(0)))
                 .build();
 
@@ -222,7 +222,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-28, -14, Math.toRadians(7)),
                         new MecanumConstraints(new DriveConstraints(
                                 16, 20, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory ringToZoneB = drive.trajectoryBuilder(wobbleToRing.end())
@@ -247,7 +247,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-40, -10, Math.toRadians(5)),
                         new MecanumConstraints(new DriveConstraints(
                                 35, 30, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(1.0, () -> {
                     arm.armOut();
                 })
@@ -274,7 +274,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(60, -20), Math.toRadians(0),
                         new MecanumConstraints(new DriveConstraints(
                                 50, 35, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(0.5, () -> {
                     intake.stopRing();
                     isFarGoal = false;
@@ -286,21 +286,21 @@ public class StateMachineGulag extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(-48, 0), Math.toRadians(180),
                         new MecanumConstraints(new DriveConstraints(
                                 50, 35, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory wobbleToZoneC = drive.trajectoryBuilder(downToWobble.end())
                 .splineToConstantHeading(new Vector2d(50, -20), Math.toRadians(0),
                         new MecanumConstraints(new DriveConstraints(
                                 50, 35, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory zoneCToPark = drive.trajectoryBuilder(wobbleToZoneC.end())
                 .lineTo(new Vector2d(9, -20),
                         new MecanumConstraints(new DriveConstraints(
                                 50, 35, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(0.5, () -> {
                     arm.grab();
                 })
@@ -336,47 +336,129 @@ public class StateMachineGulag extends LinearOpMode {
                     // Once `isBusy() == false`, the trajectory follower signals that it is finished
                     // We move on to the next state
                     // Make sure we use the async follow function
+                    isFarGoal = false;
+                    isPowerShot = true;
                     if(drive.isBusy()) {
                         time.reset();
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 500) {
+                    else if(!drive.isBusy()) {
+                        intake.pushRing();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 700) {
+                        intake.stopRing();
                         currentState = State.SHOOT_TURN_1;
                         drive.turnAsync(shootTurn1);
                     }
                     break;
+
                 case SHOOT_TURN_1:
-                    // Check if the drive class isn't busy
-                    // `isBusy() == true` while it's following the trajectory
-                    // Once `isBusy() == false`, the trajectory follower signals that it is finished
-                    // We move on to the next state
-                    // Make sure we use the async follow function
-                    if (!drive.isBusy()) {
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    else if(!drive.isBusy()) {
+                        intake.pushRing();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 700) {
+                        intake.stopRing();
                         currentState = State.SHOOT_TURN_2;
                         drive.turnAsync(shootTurn2);
                     }
                     break;
                 case SHOOT_TURN_2:
-                    // Check if the drive class is busy following the trajectory
-                    // Move on to the next state, TURN_1, once finished
-                    if (!drive.isBusy() && rings == 0) {
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    else if(!drive.isBusy()) {
+                        intake.pushRing();
+                    }
+                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 700) {
+                        intake.stopRing();
+                        isFarGoal = false;
+                        isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_A;
                         drive.followTrajectoryAsync(shootToZoneA);
                     }
-                    else if(!drive.isBusy() && rings == 1) {
+                    if(!drive.isBusy() && rings == 1 && time.milliseconds() >= 700) {
+                        intake.stopRing();
+                        isFarGoal = false;
+                        isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_B;
                         drive.followTrajectoryAsync(shootToZoneB);
                     }
                     break;
+
+                case DOWN_TO_WOBBLE:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 900 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.grab();
+                    }
+                    if(!drive.isBusy() && 1150 >= time.milliseconds() && time.milliseconds() >= 900) {
+                        arm.armOut();
+                    }
+                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 1150) {
+                        currentState = State.WOBBLE_TO_ZONE_A;
+                        drive.followTrajectoryAsync(wobbleToZoneA);
+                    }
+                    if (!drive.isBusy() && rings == 1 && time.milliseconds() >= 1150) {
+                        isFarGoal = true;
+                        isPowerShot = false;
+                        currentState = State.WOBBLE_TO_RING;
+                        drive.followTrajectoryAsync(wobbleToRing);
+                    }
+                    if (!drive.isBusy() && rings == 4 && time.milliseconds() >= 1150) {
+                        currentState = State.WOBBLE_TO_ZONE_C;
+                        drive.followTrajectoryAsync(wobbleToZoneC);
+                    }
+                    break;
+
 
 
                 case SHOOT_TO_ZONE_A:
-                    // Check if the drive class is busy turning
-                    // If not, move onto the next state, TRAJECTORY_3, once finished
-                    if (!drive.isBusy()) {
-                        currentState = State.SHOOT_TO_ZONE_B;
-                        drive.followTrajectoryAsync(shootToZoneB);
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 750 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.armDrop();
+                    }
+                    if(!drive.isBusy() && 1000 >= time.milliseconds() && time.milliseconds() >= 750) {
+                        arm.release();
+                    }
+                    if(!drive.isBusy() && 1250 >= time.milliseconds() && time.milliseconds() >= 1000) {
+                        arm.armOut();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 1250) {
+                        currentState = State.ZONE_A_TO_DOWN;
+                        drive.followTrajectoryAsync(zoneAToDown);
                     }
                     break;
+
+                case ZONE_A_TO_DOWN:
+                    if (!drive.isBusy()) {
+                        arm.armDrop();
+                        currentState = State.DOWN_TO_WOBBLE;
+                        drive.followTrajectoryAsync(downToWobble);
+                    }
+                    break;
+
+                case WOBBLE_TO_ZONE_A:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 750 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.armDrop();
+                    }
+                    if(!drive.isBusy() && 1000 >= time.milliseconds() && time.milliseconds() >= 750) {
+                        arm.release();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 1000) {
+                        arm.armRest();
+                        currentState = State.ZONE_A_TO_PARK;
+                        drive.followTrajectoryAsync(zoneAToPark);
+                    }
+                    break;
+
 
 //                case :
 //                    // Check if the drive class is busy following the trajectory
@@ -416,10 +498,10 @@ public class StateMachineGulag extends LinearOpMode {
             }
 
             // Anything outside of the switch statement will run independent of the currentState
-
+            arm.update();
             // We update drive continuously in the background, regardless of state
             drive.update();
-            // We update our lift PID continuously in the background, regardless of state
+            // We update our shooter PID continuously in the background, regardless of state
             if(isFarGoal) {
                 shooter.setVelocity(farGoalVelo);
             }
