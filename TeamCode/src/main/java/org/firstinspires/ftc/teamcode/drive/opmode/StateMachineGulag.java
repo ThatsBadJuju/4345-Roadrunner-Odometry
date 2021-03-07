@@ -179,13 +179,13 @@ public class StateMachineGulag extends LinearOpMode {
 
 
 
-        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(15)))
+        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(16)))
                 .lineToLinearHeading(new Pose2d(14, -20, Math.toRadians(0)))
                 .build();
 
         double shootTurn1 = Math.toRadians(9);
 
-        double shootTurn2 = Math.toRadians(6);
+        double shootTurn2 = Math.toRadians(7);
 
         Trajectory zoneAToDown = drive.trajectoryBuilder(shootToZoneA.end(), true)
                 .splineTo(new Vector2d(-48, 0), Math.toRadians(180))
@@ -204,7 +204,7 @@ public class StateMachineGulag extends LinearOpMode {
 
 
 
-        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(15)))
+        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(16)))
                 .lineToLinearHeading(new Pose2d(36, 4, Math.toRadians(0)))
                 .build();
 
@@ -484,15 +484,14 @@ public class StateMachineGulag extends LinearOpMode {
             // Read pose
             Pose2d poseEstimate = drive.getPoseEstimate();
 
+            // Continually write pose to `PoseStorage`
+            PoseStorage.currentPose = poseEstimate;
+
             // Print pose to telemetry
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
         }
-    }
-
-    public void PIDSleeper(int ms) {
-
     }
 }
