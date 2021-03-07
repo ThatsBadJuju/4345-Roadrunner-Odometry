@@ -51,26 +51,22 @@ public class StateMachineGulag extends LinearOpMode {
         START_TO_SHOOT,
         SHOOT_TURN_1,
         SHOOT_TURN_2,
+        ZONE_X_TO_DOWN,
         DOWN_TO_WOBBLE,
+        ZONE_X_TO_PARK,
 
         SHOOT_TO_ZONE_A,
-        ZONE_A_TO_DOWN,
         WOBBLE_TO_ZONE_A,
-        ZONE_A_TO_PARK,
 
         SHOOT_TO_ZONE_B,
-        ZONE_B_TO_DOWN,
         WOBBLE_TO_RING,
         RING_TO_ZONE_B,
-        ZONE_B_TO_PARK,
 
         START_TO_SHOOT_C,
         SHOOT_C_TO_RING,
         RING_TO_COLLECT,
         COLLECT_TO_ZONE_C,
-        ZONE_C_TO_DOWN,
         WOBBLE_TO_ZONE_C,
-        ZONE_C_TO_PARK,
 
         IDLE            // Our bot will enter the IDLE state when done
     }
@@ -81,8 +77,7 @@ public class StateMachineGulag extends LinearOpMode {
     public Camera camera;
 
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(50, 0, 10, 11.9);
-    double highGoalVelo = rpmToTicksPerSecond(5150);
-    double farGoalVelo = rpmToTicksPerSecond(4400);
+    double farGoalVelo = rpmToTicksPerSecond(4075);
     double powerShotVelo = rpmToTicksPerSecond(4000);
 
     boolean isFarGoal = false;
@@ -316,6 +311,10 @@ public class StateMachineGulag extends LinearOpMode {
             currentState = State.START_TO_SHOOT;
             drive.followTrajectoryAsync(startToShoot);
         }
+        else {
+            currentState = State.START_TO_SHOOT_C;
+            drive.followTrajectoryAsync(startToShootC);
+        }
 
 
         while (opModeIsActive() && !isStopRequested()) {
@@ -339,7 +338,7 @@ public class StateMachineGulag extends LinearOpMode {
                     else if(!drive.isBusy()) {
                         intake.pushRing();
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 750) {
+                    if (!drive.isBusy() && time.milliseconds() >= 800) {
                         intake.stopRing();
                         currentState = State.SHOOT_TURN_1;
                         drive.turnAsync(shootTurn1);
@@ -353,7 +352,7 @@ public class StateMachineGulag extends LinearOpMode {
                     else if(!drive.isBusy()) {
                         intake.pushRing();
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 750) {
+                    if (!drive.isBusy() && time.milliseconds() >= 800) {
                         intake.stopRing();
                         currentState = State.SHOOT_TURN_2;
                         drive.turnAsync(shootTurn2);
@@ -366,19 +365,27 @@ public class StateMachineGulag extends LinearOpMode {
                     else if(!drive.isBusy()) {
                         intake.pushRing();
                     }
-                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 750) {
+                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 800) {
                         intake.stopRing();
                         isFarGoal = false;
                         isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_A;
                         drive.followTrajectoryAsync(shootToZoneA);
                     }
-                    if(!drive.isBusy() && rings == 1 && time.milliseconds() >= 750) {
+                    if(!drive.isBusy() && rings == 1 && time.milliseconds() >= 800) {
                         intake.stopRing();
                         isFarGoal = false;
                         isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_B;
                         drive.followTrajectoryAsync(shootToZoneB);
+                    }
+                    break;
+
+                case ZONE_X_TO_DOWN:
+                    if (!drive.isBusy()) {
+                        arm.armDrop();
+                        currentState = State.DOWN_TO_WOBBLE;
+                        drive.followTrajectoryAsync(downToWobble);
                     }
                     break;
 
@@ -389,23 +396,36 @@ public class StateMachineGulag extends LinearOpMode {
                     if(!drive.isBusy() && 900 >= time.milliseconds() && time.milliseconds() >= 250) {
                         arm.grab();
                     }
-                    if(!drive.isBusy() && 1150 >= time.milliseconds() && time.milliseconds() >= 900) {
+                    if(!drive.isBusy() && 1100 >= time.milliseconds() && time.milliseconds() >= 900) {
                         arm.armOut();
                     }
-                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 1150) {
+                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 1100) {
                         currentState = State.WOBBLE_TO_ZONE_A;
                         drive.followTrajectoryAsync(wobbleToZoneA);
                     }
-                    if (!drive.isBusy() && rings == 1 && time.milliseconds() >= 1150) {
+                    if (!drive.isBusy() && rings == 1 && time.milliseconds() >= 1100) {
                         isFarGoal = true;
                         isPowerShot = false;
+                        intake.succ();
                         currentState = State.WOBBLE_TO_RING;
                         drive.followTrajectoryAsync(wobbleToRing);
                     }
-                    if (!drive.isBusy() && rings == 4 && time.milliseconds() >= 1150) {
+                    if (!drive.isBusy() && rings == 4 && time.milliseconds() >= 1100) {
                         currentState = State.WOBBLE_TO_ZONE_C;
                         drive.followTrajectoryAsync(wobbleToZoneC);
                     }
+                    break;
+
+                case ZONE_X_TO_PARK:
+                    if (!drive.isBusy()) {
+                        currentState = State.IDLE;
+                    }
+                    break;
+
+                case IDLE:
+                    // Do nothing in IDLE
+                    // currentState does not change once in IDLE
+                    // This concludes the autonomous program
                     break;
 
 
@@ -424,16 +444,8 @@ public class StateMachineGulag extends LinearOpMode {
                         arm.armOut();
                     }
                     if (!drive.isBusy() && time.milliseconds() >= 1250) {
-                        currentState = State.ZONE_A_TO_DOWN;
+                        currentState = State.ZONE_X_TO_DOWN;
                         drive.followTrajectoryAsync(zoneAToDown);
-                    }
-                    break;
-
-                case ZONE_A_TO_DOWN:
-                    if (!drive.isBusy()) {
-                        arm.armDrop();
-                        currentState = State.DOWN_TO_WOBBLE;
-                        drive.followTrajectoryAsync(downToWobble);
                     }
                     break;
 
@@ -449,22 +461,136 @@ public class StateMachineGulag extends LinearOpMode {
                     }
                     if (!drive.isBusy() && time.milliseconds() >= 1000) {
                         arm.armRest();
-                        currentState = State.ZONE_A_TO_PARK;
+                        currentState = State.ZONE_X_TO_PARK;
                         drive.followTrajectoryAsync(zoneAToPark);
                     }
                     break;
 
-                case ZONE_A_TO_PARK:
-                    if (!drive.isBusy()) {
-                        currentState = State.IDLE;
+
+
+                case SHOOT_TO_ZONE_B:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 750 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.armDrop();
+                    }
+                    if(!drive.isBusy() && 1000 >= time.milliseconds() && time.milliseconds() >= 750) {
+                        arm.release();
+                    }
+                    if(!drive.isBusy() && 1250 >= time.milliseconds() && time.milliseconds() >= 1000) {
+                        arm.armOut();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 1250) {
+                        currentState = State.ZONE_X_TO_DOWN;
+                        drive.followTrajectoryAsync(zoneBToDown);
+                    }
+                    break;
+
+                case WOBBLE_TO_RING:
+                    if(drive.isBusy()) {
+                        time.reset();
+                        intake.succ();
+                        isFarGoal = true;
+                        isPowerShot = false;
+                    }
+                    if(!drive.isBusy() && time.milliseconds() >= 1000) {
+                        intake.pushRing();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 2000) {
+                        currentState = State.RING_TO_ZONE_B;
+                        drive.followTrajectoryAsync(ringToZoneB);
+                    }
+                    break;
+
+                case RING_TO_ZONE_B:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 750 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.armDrop();
+                    }
+                    if(!drive.isBusy() && 1000 >= time.milliseconds() && time.milliseconds() >= 750) {
+                        arm.release();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 1000) {
+                        arm.armRest();
+                        currentState = State.ZONE_X_TO_PARK;
+                        drive.followTrajectoryAsync(zoneBToPark);
                     }
                     break;
 
 
-                case IDLE:
-                    // Do nothing in IDLE
-                    // currentState does not change once in IDLE
-                    // This concludes the autonomous program
+
+                case START_TO_SHOOT_C:
+                    isFarGoal = true;
+                    isPowerShot = false;
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    else if(!drive.isBusy()) {
+                        intake.pushRing();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 2750) {
+                        intake.stopRing();
+                        currentState = State.SHOOT_C_TO_RING;
+                        drive.followTrajectoryAsync(shootCToRing);
+                    }
+                    break;
+
+                case SHOOT_C_TO_RING:
+                    if(!drive.isBusy()) {
+                        intake.succ();
+                        currentState = State.RING_TO_COLLECT;
+                        drive.followTrajectoryAsync(ringToCollect);
+                    }
+                    break;
+
+                case RING_TO_COLLECT:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    else if (!drive.isBusy() && time.milliseconds() >= 1500) {
+                        intake.nosucc();
+                        currentState = State.COLLECT_TO_ZONE_C;
+                        drive.followTrajectoryAsync(collectToZoneC);
+                    }
+                    break;
+
+                case COLLECT_TO_ZONE_C:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 250 >= time.milliseconds()) {
+                        arm.armDrop();
+                    }
+                    if(!drive.isBusy() && 450 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.release();
+                    }
+                    if(!drive.isBusy() && 700 >= time.milliseconds() && time.milliseconds() >= 450) {
+                        arm.armOut();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 700) {
+                        currentState = State.ZONE_X_TO_DOWN;
+                        drive.followTrajectoryAsync(zoneCToDown);
+                    }
+                    break;
+
+                case WOBBLE_TO_ZONE_C:
+                    if(drive.isBusy()) {
+                        time.reset();
+                    }
+                    if(!drive.isBusy() && 250 >= time.milliseconds()) {
+                        arm.armDrop();
+                    }
+                    if(!drive.isBusy() && 500 >= time.milliseconds() && time.milliseconds() >= 250) {
+                        arm.release();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 500) {
+                        arm.armRest();
+                        currentState = State.ZONE_X_TO_PARK;
+                        drive.followTrajectoryAsync(zoneCToPark);
+                    }
                     break;
             }
 
