@@ -89,7 +89,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         // Initialize custom cancelable SampleMecanumDrive class
         SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
         Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
-        Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
+        //Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         ArmNoEncoder arm = new ArmNoEncoder(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
 
         // We want to turn off velocity control for teleop

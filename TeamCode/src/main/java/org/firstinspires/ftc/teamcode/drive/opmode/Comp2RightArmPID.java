@@ -5,30 +5,47 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.teamcode.drive.Arm;
+import org.firstinspires.ftc.teamcode.drive.ArmNoEncoder;
 import org.firstinspires.ftc.teamcode.drive.Camera;
 import org.firstinspires.ftc.teamcode.drive.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.Shooter;
 
+import static org.firstinspires.ftc.teamcode.drive.opmode.TuningController.MOTOR_GEAR_RATIO;
+import static org.firstinspires.ftc.teamcode.drive.opmode.TuningController.MOTOR_TICKS_PER_REV;
+
+@Disabled
 @Autonomous(name = "RightArmShoot", group = "drive" )
-public class Comp2RightArm extends LinearOpMode {
+public class Comp2RightArmPID extends LinearOpMode {
 
     public Intake intake;
     public Shooter shooter;
-    public Arm arm;
+    public ArmNoEncoder arm;
     public Camera camera;
+
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(50, 0, 10, 11.9);
+    double highGoalVelo = rpmToTicksPerSecond(5150);
+    double farGoalVelo = rpmToTicksPerSecond(4400);
+    double powerShotVelo = rpmToTicksPerSecond(4000);
 
     @Override
     public void runOpMode() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
-        shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
-        arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
+        //shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
+        arm = new ArmNoEncoder(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
         camera = new Camera(hardwareMap);
 
         camera.activate();
@@ -37,6 +54,35 @@ public class Comp2RightArm extends LinearOpMode {
 
         drive.setPoseEstimate(startPose);
 
+
+        //_________________________________________________________________________________//
+
+        // SETUP MOTOR //
+        // Change my id
+        DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+
+        // Reverse as appropriate
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Turns on bulk reading
+        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        // RUE limits max motor speed to 85% by default
+        // Raise that limit to 100%
+        MotorConfigurationType motorConfigurationType = shooter.getMotorType().clone();
+        motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+        shooter.setMotorType(motorConfigurationType);
+
+        // Turn on RUN_USING_ENCODER
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Set PIDF Coefficients with voltage compensated feedforward value
+        shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                MOTOR_VELO_PID.p, MOTOR_VELO_PID.i, MOTOR_VELO_PID.d,
+                MOTOR_VELO_PID.f * 12 / hardwareMap.voltageSensor.iterator().next().getVoltage()
+        ));
 
 
         //scan rings here 0, 1, 4 = A, B, C
@@ -67,19 +113,19 @@ public class Comp2RightArm extends LinearOpMode {
                 })
                 .build();
 
-        Trajectory strafeLeftShoot = drive.trajectoryBuilder(startToShoot.end())
-                .lineTo(new Vector2d(-2, 19),
-                        new MecanumConstraints(new DriveConstraints(
-                                30, 30, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
-                .build();
-
-        Trajectory strafeleftShoot2 = drive.trajectoryBuilder(strafeLeftShoot.end())
-                .lineTo(new Vector2d(-2, 26.5),
-                        new MecanumConstraints(new DriveConstraints(
-                                30, 30, 0.0,
-                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
-                .build();
+//        Trajectory strafeLeftShoot = drive.trajectoryBuilder(startToShoot.end())
+//                .lineTo(new Vector2d(-2, 19),
+//                        new MecanumConstraints(new DriveConstraints(
+//                                30, 30, 0.0,
+//                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+//                .build();
+//
+//        Trajectory strafeleftShoot2 = drive.trajectoryBuilder(strafeLeftShoot.end())
+//                .lineTo(new Vector2d(-2, 26.5),
+//                        new MecanumConstraints(new DriveConstraints(
+//                                30, 30, 0.0,
+//                                Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
+//                .build();
 
         Trajectory downToWobble = drive.trajectoryBuilder(new Pose2d(-48, 0, Math.toRadians(0)))
                 .lineTo(new Vector2d(-48, -11),
@@ -90,7 +136,7 @@ public class Comp2RightArm extends LinearOpMode {
 
 
 
-        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(15)))
+        Trajectory shootToZoneA = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/ new Pose2d(-2, 11.5, Math.toRadians(17)))
                 .lineToLinearHeading(new Pose2d(14, -20, Math.toRadians(0)))
                 .build();
 
@@ -111,7 +157,7 @@ public class Comp2RightArm extends LinearOpMode {
 
 
 
-        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(15)))
+        Trajectory shootToZoneB = drive.trajectoryBuilder(/*strafeleftShoot2.end()*/new Pose2d(-2, 11.5, Math.toRadians(17)))
                 .lineToLinearHeading(new Pose2d(36, 4, Math.toRadians(0)))
                 .build();
 
@@ -130,7 +176,7 @@ public class Comp2RightArm extends LinearOpMode {
         Trajectory ringToZoneB = drive.trajectoryBuilder(wobbleToRing.end())
                 .splineTo(new Vector2d(26, 4), Math.toRadians(0))
                 .addTemporalMarker(0.5, () -> {
-                    shooter.stopShooter();
+                    shooter.setVelocity(0);
                     intake.nosucc();
                     intake.stopRing();
                 })
@@ -178,7 +224,7 @@ public class Comp2RightArm extends LinearOpMode {
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.9))
                 .addTemporalMarker(0.5, () -> {
                     intake.stopRing();
-                    shooter.stopShooter();
+                    shooter.setVelocity(0);
                 })
                 .build();
 
@@ -275,30 +321,28 @@ public class Comp2RightArm extends LinearOpMode {
         if(isStopRequested()) return;
 
         if(rings != 4) {
-            shooter.shootAuto();
+            shooter.setVelocity(powerShotVelo);
             drive.followTrajectory(startToShoot);
             intake.pushRing();
-            drive.residentSleeper(1250);
+            drive.residentSleeper(750);
             intake.stopRing();
             //        drive.followTrajectory(strafeLeftShoot);
             drive.turn(Math.toRadians(9));
             intake.pushRing();
-            drive.residentSleeper(1250);
+            drive.residentSleeper(750);
             intake.stopRing();
             //        drive.followTrajectory(strafeleftShoot2);
             drive.turn(Math.toRadians(6));
             intake.pushRing();
-            drive.residentSleeper(1100);
+            drive.residentSleeper(750);
             intake.stopRing();
-            shooter.stopShooter();
+            shooter.setVelocity(0);
         }
         else {
-            shooter.shootFar(0.63);
+            shooter.setVelocity(farGoalVelo);
             drive.followTrajectory(startToShootC);
             intake.pushRing();
-            drive.residentSleeper(600);
-            shooter.shootFar(0.65);
-            drive.residentSleeper(3100);
+            drive.residentSleeper(1800);
             intake.stopRing();
         }
 
@@ -309,7 +353,7 @@ public class Comp2RightArm extends LinearOpMode {
             drive.residentSleeper(500);
             arm.release();
             drive.residentSleeper(250);
-            arm.armUp();
+            arm.armOut();
             drive.residentSleeper(250);
             drive.followTrajectory(zoneAToDown);
             arm.armDrop();
@@ -346,7 +390,7 @@ public class Comp2RightArm extends LinearOpMode {
             drive.residentSleeper(700);
             arm.armOut();
             drive.residentSleeper(250);
-            shooter.shootFar(0.64);
+            shooter.setVelocity(farGoalVelo);
             intake.succ();
             drive.followTrajectory(wobbleToRing);
             drive.residentSleeper(1000);
@@ -364,9 +408,9 @@ public class Comp2RightArm extends LinearOpMode {
         else if(rings == 4) {
             drive.followTrajectory(shootCToRing);
             intake.autoSucc(0.8);
-            shooter.shootFar(0.67);
+            shooter.setVelocity(farGoalVelo);
             drive.followTrajectory(backToCollect);
-            drive.residentSleeper(2500);
+            drive.residentSleeper(2000);
             intake.nosucc();
             drive.followTrajectory(collectToZoneC);
             arm.armDrop();
@@ -421,5 +465,9 @@ public class Comp2RightArm extends LinearOpMode {
 //            drive.followTrajectory(zoneCToPark);
         }
         PoseStorage.currentPose = drive.getPoseEstimate();
+    }
+
+    public static double rpmToTicksPerSecond(double rpm) {
+        return rpm * MOTOR_TICKS_PER_REV / MOTOR_GEAR_RATIO / 60;
     }
 }

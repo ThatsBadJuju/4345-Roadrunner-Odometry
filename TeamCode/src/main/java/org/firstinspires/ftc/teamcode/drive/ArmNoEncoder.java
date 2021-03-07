@@ -28,6 +28,10 @@ public class ArmNoEncoder {
     private boolean armUp = false;
     private boolean armGrab = true;
 
+    private boolean armRestAuto = true;
+    private boolean armOutAuto = false;
+    private boolean armDropAuto = false;
+
     public ArmNoEncoder(DcMotor armMotor, Servo armServo, AnalogInput potentiometer) {
         this.armMotor = armMotor;
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -118,12 +122,45 @@ public class ArmNoEncoder {
         armMotor.setPower(correctedPower);
     }
 
+    public void armRest() {
+        armRun(25, 0.4);
+        armRestAuto = true;
+        armOutAuto = false;
+        armDropAuto = false;
+
+    }
+
+    public void armOut() {
+        armRun(160, 0.4);
+        armRestAuto = false;
+        armOutAuto = true;
+        armDropAuto = false;
+    }
+
+    public void armDrop() {
+        armRun(175, 0.4);
+        armRestAuto = false;
+        armOutAuto = false;
+        armDropAuto = true;
+    }
+
     public double getAngle() {
         double x = potentiometer.getVoltage();
         double sqrtFunction = Math.sqrt(21870000*x*x-24057000*x+19847025);
         return (2700*x + 4455 - sqrtFunction)/(20*x);
     }
 
+    public void update() {
+        if(armRestAuto) {
+            armRest();
+        }
+        else if(armOutAuto) {
+            armOut();
+        }
+        else if(armDropAuto) {
+            armDrop();
+        }
+    }
 
 
     public void grab() {
