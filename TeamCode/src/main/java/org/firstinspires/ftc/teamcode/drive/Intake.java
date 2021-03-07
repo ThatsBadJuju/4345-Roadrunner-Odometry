@@ -51,7 +51,7 @@ public class Intake {
     }
 
     public void pushRing() {
-        crServo.setPower(0.9);
+        crServo.setPower(1.0);
     }
 
     public void reverseRing() {

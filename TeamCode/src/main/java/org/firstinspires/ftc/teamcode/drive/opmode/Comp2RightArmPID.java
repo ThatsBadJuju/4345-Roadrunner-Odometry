@@ -26,7 +26,7 @@ import static org.firstinspires.ftc.teamcode.drive.opmode.TuningController.MOTOR
 import static org.firstinspires.ftc.teamcode.drive.opmode.TuningController.MOTOR_TICKS_PER_REV;
 
 @Disabled
-@Autonomous(name = "RightArmShoot", group = "drive" )
+@Autonomous(name = "nvm", group = "drive" )
 public class Comp2RightArmPID extends LinearOpMode {
 
     public Intake intake;

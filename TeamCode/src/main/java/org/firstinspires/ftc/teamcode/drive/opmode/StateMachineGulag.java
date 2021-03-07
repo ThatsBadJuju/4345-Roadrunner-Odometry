@@ -72,11 +72,6 @@ public class StateMachineGulag extends LinearOpMode {
         WOBBLE_TO_ZONE_C,
         ZONE_C_TO_PARK,
 
-        WAIT_100,
-        WAIT_250,
-        WAIT_500,
-        WAIT_1000,
-
         IDLE            // Our bot will enter the IDLE state when done
     }
 
@@ -165,7 +160,7 @@ public class StateMachineGulag extends LinearOpMode {
 
 
         Trajectory startToShoot = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(2)),
+                .lineToLinearHeading(new Pose2d(-2, 11.5, Math.toRadians(0)),
                         new MecanumConstraints(new DriveConstraints(
                                 40, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
@@ -344,7 +339,7 @@ public class StateMachineGulag extends LinearOpMode {
                     else if(!drive.isBusy()) {
                         intake.pushRing();
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 700) {
+                    if (!drive.isBusy() && time.milliseconds() >= 750) {
                         intake.stopRing();
                         currentState = State.SHOOT_TURN_1;
                         drive.turnAsync(shootTurn1);
@@ -358,7 +353,7 @@ public class StateMachineGulag extends LinearOpMode {
                     else if(!drive.isBusy()) {
                         intake.pushRing();
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 700) {
+                    if (!drive.isBusy() && time.milliseconds() >= 750) {
                         intake.stopRing();
                         currentState = State.SHOOT_TURN_2;
                         drive.turnAsync(shootTurn2);
@@ -371,14 +366,14 @@ public class StateMachineGulag extends LinearOpMode {
                     else if(!drive.isBusy()) {
                         intake.pushRing();
                     }
-                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 700) {
+                    if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 750) {
                         intake.stopRing();
                         isFarGoal = false;
                         isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_A;
                         drive.followTrajectoryAsync(shootToZoneA);
                     }
-                    if(!drive.isBusy() && rings == 1 && time.milliseconds() >= 700) {
+                    if(!drive.isBusy() && rings == 1 && time.milliseconds() >= 750) {
                         intake.stopRing();
                         isFarGoal = false;
                         isPowerShot = false;
@@ -488,8 +483,6 @@ public class StateMachineGulag extends LinearOpMode {
 //                    }
 //                    break;
 
-                case WAIT_100:
-
                 case IDLE:
                     // Do nothing in IDLE
                     // currentState does not change once in IDLE
@@ -512,9 +505,6 @@ public class StateMachineGulag extends LinearOpMode {
 
             // Read pose
             Pose2d poseEstimate = drive.getPoseEstimate();
-
-            // Continually write pose to `PoseStorage`
-            PoseStorage.currentPose = poseEstimate;
 
             // Print pose to telemetry
             telemetry.addData("x", poseEstimate.getX());

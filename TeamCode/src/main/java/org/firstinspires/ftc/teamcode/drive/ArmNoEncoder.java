@@ -131,7 +131,7 @@ public class ArmNoEncoder {
     }
 
     public void armOut() {
-        armRun(160, 0.4);
+        armRun(155, 0.4);
         armRestAuto = false;
         armOutAuto = true;
         armDropAuto = false;
