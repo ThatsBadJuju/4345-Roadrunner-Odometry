@@ -454,34 +454,12 @@ public class StateMachineGulag extends LinearOpMode {
                     }
                     break;
 
+                case ZONE_A_TO_PARK:
+                    if (!drive.isBusy()) {
+                        currentState = State.IDLE;
+                    }
+                    break;
 
-//                case :
-//                    // Check if the drive class is busy following the trajectory
-//                    // If not, move onto the next state, WAIT_1
-//                    if (!drive.isBusy()) {
-//                        currentState = State.WAIT_1;
-//
-//                        // Start the wait timer once we switch to the next state
-//                        // This is so we can track how long we've been in the WAIT_1 state
-//                        waitTimer1.reset();
-//                    }
-//                    break;
-//                case WAIT_1:
-//                    // Check if the timer has exceeded the specified wait time
-//                    // If so, move on to the TURN_2 state
-//                    if (waitTimer1.seconds() >= waitTime1) {
-//                        currentState = State.TURN_2;
-//                        drive.turnAsync(turnAngle2);
-//                    }
-//                    break;
-//                case TURN_2:
-//                    // Check if the drive class is busy turning
-//                    // If not, move onto the next state, IDLE
-//                    // We are done with the program
-//                    if (!drive.isBusy()) {
-//                        currentState = State.IDLE;
-//                    }
-//                    break;
 
                 case IDLE:
                     // Do nothing in IDLE
