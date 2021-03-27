@@ -80,7 +80,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
     // The angle we want to align to when we press Y
     double targetAngle = Math.toRadians(45);
 
-    private Vector2d targetPosition = new Vector2d(72, 0);
+    private Vector2d targetPosition = new Vector2d(72, -4);
 
     private long cooldownTime = 300; //300 milliseconds
 
@@ -88,7 +88,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // Initialize custom cancelable SampleMecanumDrive class
         SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
-        Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
+        Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.servo.get("legsOfDoom"));
         //Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         ArmNoEncoder arm = new ArmNoEncoder(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
 
@@ -107,6 +107,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         headingController.setInputBounds(-Math.PI, Math.PI);
 
         long grabbedTime = System.currentTimeMillis();
+        long positionChangedTime = System.currentTimeMillis();
 
         //_________________________________________________________________________________//
 
@@ -175,6 +176,17 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
 
+            long timeSincePosChange = System.currentTimeMillis() - positionChangedTime;
+            if(timeSincePosChange >= 500) {
+                if(gamepad2.left_stick_button) {
+                    drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, Math.toRadians(-1))));
+                    positionChangedTime = System.currentTimeMillis();
+                }
+                else if(gamepad2.right_stick_button) {
+                    drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, Math.toRadians(1))));
+                    positionChangedTime = System.currentTimeMillis();
+                }
+            }
             // We follow different logic based on whether we are in manual driver control or switch
             // control to the automatic mode
             switch (currentMode) {
@@ -219,49 +231,6 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
                         currentMode = Mode.AUTOMATIC_CONTROL;
                     }
-
-
-                    myMotor.setVelocity(targetVelocity);
-
-                    double motorVelo = myMotor.getVelocity();
-                    telemetry.addData("target", targetVelocity);
-                    telemetry.addData("velocity", motorVelo);
-                    telemetry.addData("error", targetVelocity - motorVelo);
-
-                    long timeSinceChange = System.currentTimeMillis() - time;
-                    if(timeSinceChange >= cooldownTime) {
-                        if(gamepad1.right_bumper && isHighVelo) {
-                            time = System.currentTimeMillis();
-                            targetVelocity = rpmToTicksPerSecond(off);
-                            isHighVelo = false;
-                            isLowVelo = false;
-                        }
-                        else if(gamepad1.right_bumper) {
-                            time = System.currentTimeMillis();
-                            targetVelocity = rpmToTicksPerSecond(highGoalVelo);
-                            isHighVelo = true;
-                            isLowVelo = false;
-                        }
-                        else if(gamepad1.right_trigger >= 0.05 && isLowVelo) {
-                            time = System.currentTimeMillis();
-                            targetVelocity = rpmToTicksPerSecond(off);
-                            isHighVelo = false;
-                            isLowVelo = false;
-                        }
-                        else if(gamepad1.right_trigger >= 0.05) {
-                            time = System.currentTimeMillis();
-                            targetVelocity = rpmToTicksPerSecond(powerShotVelo);
-                            isHighVelo = false;
-                            isLowVelo = true;
-                        }
-                    }
-
-//                  if(gamepad1.b) {
-//                      currentMode = Mode.FIELD_CENTRIC;
-//                  }
-//                  if(gamepad1.y) {
-//                      currentMode = Mode.ALIGN_TO_POINT;
-//                  }
                     break;
 
 //                case FIELD_CENTRIC:
@@ -312,15 +281,12 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 //                    if (gamepad1.a) {
 //                        currentMode = Mode.DRIVER_CONTROL;
 //                    }
-//                    if(gamepad2.b) {
-//                        currentMode = Mode.FIELD_CENTRIC;
-//                    }
 //
 //                    // Create a vector from the gamepad x/y inputs which is the field relative movement
 //                    // Then, rotate that vector by the inverse of that heading for field centric control
 //                    Vector2d fieldFrameInput = new Vector2d(
-//                            -gamepad1.left_stick_y,
-//                            -gamepad1.left_stick_x
+//                            -gamepad1.left_stick_y * 0.4,
+//                            -gamepad1.left_stick_x * 0.35
 //                    );
 //                    Vector2d robotFrameInput = fieldFrameInput.rotated(-poseEstimate.getHeading());
 //
@@ -348,6 +314,23 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 //                    );
 //
 //                    drive.setWeightedDrivePower(driveDirection);
+//
+//                    if (gamepad1.left_stick_button) {
+//                        // If the B button is pressed on gamepad1, we generate a lineTo()
+//                        // trajectory on the fly and follow it
+//                        // We switch the state to AUTOMATIC_CONTROL
+//
+//                        Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
+//                                .lineToLinearHeading(drivePosition,
+//                                        new MecanumConstraints(new DriveConstraints(
+//                                                55, 55, 0.0,
+//                                                Math.toRadians(235.0), Math.toRadians(235.0), 0.0), 13.9))
+//                                .build();
+//
+//                        drive.followTrajectoryAsync(traj1);
+//
+//                        currentMode = Mode.AUTOMATIC_CONTROL;
+//                    }
 //                    break;
 
                 case AUTOMATIC_CONTROL:
@@ -364,8 +347,42 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                     break;
             }
             intake.controls(gamepad1);
-            //shooter.controls(gamepad1);
-            arm.controls(gamepad1);
+            arm.controls(gamepad2);
+
+            myMotor.setVelocity(targetVelocity);
+
+            double motorVelo = myMotor.getVelocity();
+            telemetry.addData("target", targetVelocity);
+            telemetry.addData("velocity", motorVelo);
+            telemetry.addData("error", targetVelocity - motorVelo);
+
+            long timeSinceChange = System.currentTimeMillis() - time;
+            if(timeSinceChange >= cooldownTime) {
+                if(gamepad2.right_bumper && isHighVelo) {
+                    time = System.currentTimeMillis();
+                    targetVelocity = rpmToTicksPerSecond(off);
+                    isHighVelo = false;
+                    isLowVelo = false;
+                }
+                else if(gamepad2.right_bumper) {
+                    time = System.currentTimeMillis();
+                    targetVelocity = rpmToTicksPerSecond(highGoalVelo);
+                    isHighVelo = true;
+                    isLowVelo = false;
+                }
+                else if(gamepad2.left_bumper && isLowVelo) {
+                    time = System.currentTimeMillis();
+                    targetVelocity = rpmToTicksPerSecond(off);
+                    isHighVelo = false;
+                    isLowVelo = false;
+                }
+                else if(gamepad2.left_bumper) {
+                    time = System.currentTimeMillis();
+                    targetVelocity = rpmToTicksPerSecond(powerShotVelo);
+                    isHighVelo = false;
+                    isLowVelo = true;
+                }
+            }
         }
     }
 }

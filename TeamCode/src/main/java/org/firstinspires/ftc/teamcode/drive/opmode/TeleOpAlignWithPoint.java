@@ -62,7 +62,7 @@ public class TeleOpAlignWithPoint extends LinearOpMode {
         // Initialize SampleMecanumDrive
         SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
 
-        Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.crservo.get("legsOfDoom"));
+        Intake intake = new Intake(hardwareMap.dcMotor.get("intakeMotor"), hardwareMap.servo.get("legsOfDoom"));
         Shooter shooter = new Shooter(hardwareMap.dcMotor.get("shooter"));
         Arm arm = new Arm(hardwareMap.dcMotor.get("armMotor"), hardwareMap.servo.get("yoinker"), hardwareMap.analogInput.get("potentiometer"));
 

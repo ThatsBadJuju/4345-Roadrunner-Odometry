@@ -4,21 +4,26 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Intake {
     private DcMotor intakeMotor;
-    private CRServo crServo;
+    private Servo transfer;
 
-    public Intake(DcMotor intakeMotor, CRServo crServo) {
+    private long transferTime = System.currentTimeMillis();
+
+    public Intake(DcMotor intakeMotor, Servo transfer) {
         this.intakeMotor = intakeMotor;
-        this.crServo = crServo;
+        this.transfer = transfer;
+        transfer.setPosition(0.5);
     }
 
     public void controls(Gamepad gp) {
-        if(gp.left_trigger >= 0.05) {
+        long timeSinceTransfer = System.currentTimeMillis() - transferTime;
+        if(gp.left_bumper) {
             unsucc();
         }
-        else if(gp.left_bumper) {
+        else if(gp.right_bumper) {
             succ();
         }
         else {
@@ -31,11 +36,14 @@ public class Intake {
         else if(gp.dpad_right) {
             pushRing();
         }
-        else stopRing();
+        else if(gp.x && timeSinceTransfer >= 500) {
+            pushRingCycle(3);
+        }
+//        else stopRing();
     }
 
     public void succ() {
-        intakeMotor.setPower(-0.7);
+        intakeMotor.setPower(-0.8);
     }
 
     public void autoSucc(double power) {
@@ -50,15 +58,36 @@ public class Intake {
         intakeMotor.setPower(0.0);
     }
 
+
     public void pushRing() {
-        crServo.setPower(1.0);
+        transfer.setPosition(0.67);
+        //crServo.setPower(1.0);
     }
 
     public void reverseRing() {
-        crServo.setPower(-0.5);
+        transfer.setPosition(0.51);
+        //crServo.setPower(-0.5);
+    }
+
+    public void pushRingCycle(int cycles) {
+        long startTime = System.currentTimeMillis();
+        long elapsedTime = System.currentTimeMillis();
+        while(cycles > 0) {
+            pushRing();
+            while (elapsedTime - startTime <= 350) {
+                elapsedTime = System.currentTimeMillis();
+            }
+            startTime = System.currentTimeMillis();
+            reverseRing();
+            while (elapsedTime - startTime <= 350) {
+                elapsedTime = System.currentTimeMillis();
+            }
+            startTime = System.currentTimeMillis();
+            cycles--;
+        }
     }
 
     public void stopRing() {
-        crServo.setPower(0.0);
+        //crServo.setPower(0.0);
     }
 }
