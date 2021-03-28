@@ -62,7 +62,8 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
         DRIVER_CONTROL,
         FIELD_CENTRIC,
         ALIGN_TO_POINT,
-        AUTOMATIC_CONTROL
+        AUTOMATIC_CONTROL,
+        AUTOMATIC_2
     }
 
     Mode currentMode = Mode.DRIVER_CONTROL;
@@ -75,7 +76,11 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
     double targetAHeading = Math.toRadians(90);
 
     // The location we want the bot to automatically go to when we press the B button
-    private Pose2d drivePosition = new Pose2d(0, -8, Math.toRadians(0));
+    private Pose2d drivePosition = new Pose2d(0, -7, Math.toRadians(0));
+
+    double shootTurn1 = Math.toRadians(9);
+
+    double shootTurn2 = Math.toRadians(7);
 
     // The angle we want to align to when we press Y
     double targetAngle = Math.toRadians(45);
@@ -177,13 +182,13 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
             telemetry.update();
 
             long timeSincePosChange = System.currentTimeMillis() - positionChangedTime;
-            if(timeSincePosChange >= 500) {
+            if(timeSincePosChange >= 400) {
                 if(gamepad2.left_stick_button) {
-                    drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, Math.toRadians(-1))));
+                    drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, Math.toRadians(-2))));
                     positionChangedTime = System.currentTimeMillis();
                 }
                 else if(gamepad2.right_stick_button) {
-                    drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, Math.toRadians(1))));
+                    drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, Math.toRadians(2))));
                     positionChangedTime = System.currentTimeMillis();
                 }
             }
@@ -231,6 +236,17 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
                         currentMode = Mode.AUTOMATIC_CONTROL;
                     }
+                  else if(gamepad1.y) {
+                      drive.turn(shootTurn1);
+                      intake.pushRingTeleop();
+                      drive.residentSleeper(600);
+                      intake.reverseRingTeleop();
+                      drive.residentSleeper(600);
+                      drive.turn(shootTurn2);
+                      intake.pushRingTeleop();
+                      drive.residentSleeper(600);
+                      intake.reverseRingTeleop();
+                  }
                     break;
 
 //                case FIELD_CENTRIC:

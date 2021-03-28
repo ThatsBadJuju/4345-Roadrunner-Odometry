@@ -77,10 +77,12 @@ public class StateMachineGulag extends LinearOpMode {
     public Camera camera;
 
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(50, 0, 10, 11.9);
-    double farGoalVelo = rpmToTicksPerSecond(4200);
+    double farGoalVelo = rpmToTicksPerSecond(4150);
+    double closeGoalVelo = rpmToTicksPerSecond(4600);
     double powerShotVelo = rpmToTicksPerSecond(4000);
 
     boolean isFarGoal = false;
+    boolean isCloseGoal = false;
     boolean isPowerShot = false;
 
     ElapsedTime time = new ElapsedTime();
@@ -219,6 +221,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .splineTo(new Vector2d(26, 4), Math.toRadians(0))
                 .addTemporalMarker(0.5, () -> {
                     isFarGoal = false;
+                    isCloseGoal = false;
                     isPowerShot = false;
                     intake.nosucc();
                     //intake.stopRing();
@@ -234,44 +237,42 @@ public class StateMachineGulag extends LinearOpMode {
 
 
         Trajectory startToShootC = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-40, -8, Math.toRadians(7)),
+                .lineToLinearHeading(new Pose2d(-40, -9, Math.toRadians(5)),
                         new MecanumConstraints(new DriveConstraints(
-                                35, 30, 0.0,
+                                40, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
-                .addTemporalMarker(0.1, () -> {
-                    arm.armUp();
-                })
-                .addTemporalMarker(1.2, () -> {
-                    arm.armOut();
+                .addTemporalMarker(0.5, () -> {
+                    arm.armOutDown();
                 })
                 .build();
 
         Trajectory shootCToRing = drive.trajectoryBuilder(startToShootC.end())
-                .lineToLinearHeading(new Pose2d(-23, -13, Math.toRadians(5)),
+                .lineToLinearHeading(new Pose2d(-22, -10, Math.toRadians(5)),
                         new MecanumConstraints(new DriveConstraints(
-                                60, 60, 0.0,
+                                60, 80, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory ringToCollect = drive.trajectoryBuilder(shootCToRing.end())
-                .lineToLinearHeading(new Pose2d(-11, -12, Math.toRadians(7)),
+                .lineToLinearHeading(new Pose2d(-8, -10, Math.toRadians(5)),
                         new MecanumConstraints(new DriveConstraints(
-                                2.5, 15, 0.0,
+                                3, 15, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
-                .addTemporalMarker(2, () -> {
+                .addTemporalMarker(3.0, () -> {
                     intake.pushRingCycle(1);
                 })
 
                 .build();
 
         Trajectory collectToZoneC = drive.trajectoryBuilder(ringToCollect.end())
-                .splineToConstantHeading(new Vector2d(60, -20), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(58, -20), Math.toRadians(0),
                         new MecanumConstraints(new DriveConstraints(
-                                50, 35, 0.0,
+                                55, 40, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(0.5, () -> {
                     //intake.stopRing();
                     isFarGoal = false;
+                    isCloseGoal = false;
                     isPowerShot = false;
                 })
                 .build();
@@ -279,21 +280,21 @@ public class StateMachineGulag extends LinearOpMode {
         Trajectory zoneCToDown = drive.trajectoryBuilder(collectToZoneC.end(), true)
                 .splineToConstantHeading(new Vector2d(-48, 0), Math.toRadians(180),
                         new MecanumConstraints(new DriveConstraints(
-                                50, 35, 0.0,
+                                55, 35, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory wobbleToZoneC = drive.trajectoryBuilder(downToWobble.end())
                 .splineToConstantHeading(new Vector2d(50, -20), Math.toRadians(0),
                         new MecanumConstraints(new DriveConstraints(
-                                50, 35, 0.0,
+                                55, 35, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory zoneCToPark = drive.trajectoryBuilder(wobbleToZoneC.end())
                 .lineTo(new Vector2d(9, -20),
                         new MecanumConstraints(new DriveConstraints(
-                                50, 35, 0.0,
+                                55, 35, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(0.5, () -> {
                     arm.grab();
@@ -326,6 +327,12 @@ public class StateMachineGulag extends LinearOpMode {
             // You can have multiple switch statements running together for multiple state machines
             // in parallel. This is the basic idea for subsystems and commands.
 
+            // Read pose
+            Pose2d poseEstimate = drive.getPoseEstimate();
+
+            // Continually write pose to `PoseStorage`
+            PoseStorage.currentPose = poseEstimate;
+
             // We essentially define the flow of the state machine through this switch statement
             switch (currentState) {
                 case START_TO_SHOOT:
@@ -335,6 +342,7 @@ public class StateMachineGulag extends LinearOpMode {
                     // We move on to the next state
                     // Make sure we use the async follow function
                     isFarGoal = false;
+                    isCloseGoal = false;
                     isPowerShot = true;
                     if(drive.isBusy()) {
                         time.reset();
@@ -374,6 +382,7 @@ public class StateMachineGulag extends LinearOpMode {
                     if (!drive.isBusy() && rings == 0 && time.milliseconds() >= 400) {
                         intake.reverseRing();
                         isFarGoal = false;
+                        isCloseGoal = false;
                         isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_A;
                         drive.followTrajectoryAsync(shootToZoneA);
@@ -381,6 +390,7 @@ public class StateMachineGulag extends LinearOpMode {
                     if(!drive.isBusy() && rings == 1 && time.milliseconds() >= 400) {
                         intake.reverseRing();
                         isFarGoal = false;
+                        isCloseGoal = false;
                         isPowerShot = false;
                         currentState = State.SHOOT_TO_ZONE_B;
                         drive.followTrajectoryAsync(shootToZoneB);
@@ -411,6 +421,7 @@ public class StateMachineGulag extends LinearOpMode {
                     }
                     if (!drive.isBusy() && rings == 1 && time.milliseconds() >= 1100) {
                         isFarGoal = true;
+                        isCloseGoal = false;
                         isPowerShot = false;
                         intake.succ();
                         currentState = State.WOBBLE_TO_RING;
@@ -498,6 +509,7 @@ public class StateMachineGulag extends LinearOpMode {
                         time.reset();
                         intake.succ();
                         isFarGoal = true;
+                        isCloseGoal = false;
                         isPowerShot = false;
                     }
                     if(!drive.isBusy() && time.milliseconds() >= 1000) {
@@ -530,11 +542,16 @@ public class StateMachineGulag extends LinearOpMode {
 
                 case START_TO_SHOOT_C:
                     isFarGoal = true;
+                    isCloseGoal = false;
                     isPowerShot = false;
                     if(drive.isBusy()) {
                         time.reset();
                     }
-                    else if(!drive.isBusy()) {
+                    else if(!drive.isBusy() && time.milliseconds() <= 100) {
+                        arm.armOut();
+
+                    }
+                    else if(!drive.isBusy() && time.milliseconds() <= 1900) {
                         intake.pushRingCycle(3);
                     }
                     if (!drive.isBusy() && time.milliseconds() >= 1900) {
@@ -544,14 +561,17 @@ public class StateMachineGulag extends LinearOpMode {
                     break;
 
                 case SHOOT_C_TO_RING:
+                    isFarGoal = false;
+                    isCloseGoal = true;
+                    isPowerShot = false;
                     if(!drive.isBusy()) {
-                        intake.succ();
                         currentState = State.RING_TO_COLLECT;
                         drive.followTrajectoryAsync(ringToCollect);
                     }
                     break;
 
                 case RING_TO_COLLECT:
+                    intake.succ();
                     if(drive.isBusy()) {
                         time.reset();
                     }
@@ -610,16 +630,13 @@ public class StateMachineGulag extends LinearOpMode {
             if(isFarGoal) {
                 shooter.setVelocity(farGoalVelo);
             }
+            else if(isCloseGoal) {
+                shooter.setVelocity(closeGoalVelo);
+            }
             else if(isPowerShot) {
                 shooter.setVelocity(powerShotVelo);
             }
             else shooter.setVelocity(0);
-
-            // Read pose
-            Pose2d poseEstimate = drive.getPoseEstimate();
-
-            // Continually write pose to `PoseStorage`
-            PoseStorage.currentPose = poseEstimate;
 
             // Print pose to telemetry
             telemetry.addData("x", poseEstimate.getX());

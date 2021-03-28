@@ -31,13 +31,13 @@ public class Intake {
         }
 
         if(gp.dpad_left) {
-            reverseRing();
+            reverseRingTeleop();
         }
         else if(gp.dpad_right) {
-            pushRing();
+            pushRingTeleop();
         }
         else if(gp.x && timeSinceTransfer >= 500) {
-            pushRingCycle(3);
+            pushRingCycleTeleop(3);
         }
 //        else stopRing();
     }
@@ -64,10 +64,18 @@ public class Intake {
         //crServo.setPower(1.0);
     }
 
+    public void pushRingTeleop() {
+        transfer.setPosition(0.67);
+    }
+
     public void reverseRing() {
         transfer.setPosition(0.51);
         //crServo.setPower(-0.5);
     }
+
+    public void reverseRingTeleop() {
+        transfer.setPosition(0.495);
+    };
 
     public void pushRingCycle(int cycles) {
         long startTime = System.currentTimeMillis();
@@ -80,6 +88,24 @@ public class Intake {
             startTime = System.currentTimeMillis();
             reverseRing();
             while (elapsedTime - startTime <= 350) {
+                elapsedTime = System.currentTimeMillis();
+            }
+            startTime = System.currentTimeMillis();
+            cycles--;
+        }
+    }
+
+    public void pushRingCycleTeleop(int cycles) {
+        long startTime = System.currentTimeMillis();
+        long elapsedTime = System.currentTimeMillis();
+        while(cycles > 0) {
+            pushRingTeleop();
+            while (elapsedTime - startTime <= 600) {
+                elapsedTime = System.currentTimeMillis();
+            }
+            startTime = System.currentTimeMillis();
+            reverseRingTeleop();
+            while (elapsedTime - startTime <= 600) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
