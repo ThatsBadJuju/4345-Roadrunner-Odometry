@@ -50,7 +50,7 @@ public class ArmNoEncoder {
         if(timeSinceArmChange >= cooldownTime) {
             if (gp.a) {
                 armTime = System.currentTimeMillis();
-                armRun(65, 0.4, 0.15);
+                armRun(55, 0.4, 0.15);
                 armRest = true;
                 armUp = false;
                 armGrab = false;
@@ -64,7 +64,7 @@ public class ArmNoEncoder {
             }
             else if (gp.y) {
                 armTime = System.currentTimeMillis();
-                armRun(185, 0.35, 0.1);
+                armRun(170, 0.35, 0.1);
                 armRest = false;
                 armUp = false;
                 armGrab = true;
@@ -72,13 +72,13 @@ public class ArmNoEncoder {
         }
 
         if(armRest) {
-            armRun(65, 0.4, 0.15);
+            armRun(55, 0.4, 0.15);
         }
         else if(armUp) {
-            armRun(80, 0.5, 0.1);
+            armRun(70, 0.5, 0.1);
         }
         else if(armGrab) {
-            armRun(185, 0.35, 0.1);
+            armRun(170, 0.35, 0.1);
         }
 
 //        if(gp.right_bumper) {
@@ -113,7 +113,7 @@ public class ArmNoEncoder {
         }
         else correctedPower = 0.025 - deltaAngle * 0.01;
 
-        correctedPower += Math.sin(Math.toRadians(getAngle() - 70)) * 0.075;
+        correctedPower += Math.sin(Math.toRadians(getAngle() - 70)) * 0.09;
 
         if(correctedPower >= maxPower) {
             correctedPower = maxPower;
@@ -126,7 +126,7 @@ public class ArmNoEncoder {
     }
 
     public void armRest() {
-        armRun(25, 0.4, 0.1);
+        armRun(20, 0.4, 0.1);
         armRestAuto = true;
         armUpAuto = false;
         armOutAuto = false;
@@ -136,7 +136,7 @@ public class ArmNoEncoder {
     }
 
     public void armUp() {
-        armRun(80, 0.3, 0.15);
+        armRun(60, 0.3, 0.15);
         armRestAuto = false;
         armUpAuto = true;
         armOutAuto = false;
@@ -145,7 +145,7 @@ public class ArmNoEncoder {
     }
 
     public void armOut() {
-        armRun(145, 0.4, 0.15);
+        armRun(130, 0.5, 0.2);
         armRestAuto = false;
         armUpAuto = false;
         armOutAuto = true;
@@ -154,7 +154,7 @@ public class ArmNoEncoder {
     }
 
     public void armOutDown() {
-        armRun(90, 0.35, 0.15);
+        armRun(90, 0.5, 0.2);
         armRestAuto = false;
         armUpAuto = false;
         armOutAuto = false;
@@ -164,7 +164,7 @@ public class ArmNoEncoder {
 
 
     public void armDrop() {
-        armRun(167.5, 0.3, 0.1);
+        armRun(170, 0.3, 0.1);
         armRestAuto = false;
         armUpAuto = false;
         armOutAuto = false;

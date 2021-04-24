@@ -363,7 +363,7 @@ public class Comp2RightArm extends LinearOpMode {
         }
         else if(rings == 4) {
             drive.followTrajectory(shootCToRing);
-            intake.autoSucc(0.8);
+            intake.autoSucc(0.65);
             shooter.shootFar(0.67);
             drive.followTrajectory(backToCollect);
             drive.residentSleeper(2500);

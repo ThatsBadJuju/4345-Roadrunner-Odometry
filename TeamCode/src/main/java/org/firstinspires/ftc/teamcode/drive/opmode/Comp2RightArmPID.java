@@ -407,7 +407,7 @@ public class Comp2RightArmPID extends LinearOpMode {
         }
         else if(rings == 4) {
             drive.followTrajectory(shootCToRing);
-            intake.autoSucc(0.8);
+            intake.autoSucc(0.65);
             shooter.setVelocity(farGoalVelo);
             drive.followTrajectory(backToCollect);
             drive.residentSleeper(2000);

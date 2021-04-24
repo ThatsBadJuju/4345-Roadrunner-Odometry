@@ -161,7 +161,7 @@ public class StateMachineGulag extends LinearOpMode {
                         new MecanumConstraints(new DriveConstraints(
                                 40, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
-                .addTemporalMarker(1.5, () -> {
+                .addTemporalMarker(1, () -> {
                     arm.armOut();
                 })
                 .build();

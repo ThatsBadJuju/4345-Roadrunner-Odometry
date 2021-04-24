@@ -15,7 +15,7 @@ public class Intake {
     public Intake(DcMotor intakeMotor, Servo transfer) {
         this.intakeMotor = intakeMotor;
         this.transfer = transfer;
-        transfer.setPosition(0.5);
+        transfer.setPosition(0.65);
     }
 
     public void controls(Gamepad gp) {
@@ -43,7 +43,7 @@ public class Intake {
     }
 
     public void succ() {
-        intakeMotor.setPower(-0.8);
+        intakeMotor.setPower(-0.65);
     }
 
     public void autoSucc(double power) {
@@ -60,21 +60,21 @@ public class Intake {
 
 
     public void pushRing() {
-        transfer.setPosition(0.67);
+        transfer.setPosition(0.55);
         //crServo.setPower(1.0);
     }
 
     public void pushRingTeleop() {
-        transfer.setPosition(0.67);
+        transfer.setPosition(0.55);
     }
 
     public void reverseRing() {
-        transfer.setPosition(0.51);
+        transfer.setPosition(0.67);
         //crServo.setPower(-0.5);
     }
 
     public void reverseRingTeleop() {
-        transfer.setPosition(0.495);
+        transfer.setPosition(0.68);
     };
 
     public void pushRingCycle(int cycles) {
@@ -82,12 +82,12 @@ public class Intake {
         long elapsedTime = System.currentTimeMillis();
         while(cycles > 0) {
             pushRing();
-            while (elapsedTime - startTime <= 350) {
+            while (elapsedTime - startTime <= 325) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
             reverseRing();
-            while (elapsedTime - startTime <= 350) {
+            while (elapsedTime - startTime <= 325) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
@@ -100,12 +100,12 @@ public class Intake {
         long elapsedTime = System.currentTimeMillis();
         while(cycles > 0) {
             pushRingTeleop();
-            while (elapsedTime - startTime <= 600) {
+            while (elapsedTime - startTime <= 125) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
             reverseRingTeleop();
-            while (elapsedTime - startTime <= 600) {
+            while (elapsedTime - startTime <= 125) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
