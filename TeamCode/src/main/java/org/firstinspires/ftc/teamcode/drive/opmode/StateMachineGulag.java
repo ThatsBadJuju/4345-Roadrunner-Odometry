@@ -168,7 +168,7 @@ public class StateMachineGulag extends LinearOpMode {
 
 
         Trajectory downToWobble = drive.trajectoryBuilder(new Pose2d(-48, 0, Math.toRadians(0)))
-                .lineTo(new Vector2d(-48, -8),
+                .lineTo(new Vector2d(-48, -6),
                         new MecanumConstraints(new DriveConstraints(
                                 30, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
@@ -237,26 +237,26 @@ public class StateMachineGulag extends LinearOpMode {
 
 
         Trajectory startToShootC = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-40, -9, Math.toRadians(5)),
+                .lineToLinearHeading(new Pose2d(-40, -10, Math.toRadians(3)),
                         new MecanumConstraints(new DriveConstraints(
                                 40, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
-                .addTemporalMarker(0.5, () -> {
+                .addTemporalMarker(0.8, () -> {
                     arm.armOutDown();
                 })
                 .build();
 
         Trajectory shootCToRing = drive.trajectoryBuilder(startToShootC.end())
-                .lineToLinearHeading(new Pose2d(-22, -10, Math.toRadians(5)),
+                .lineToLinearHeading(new Pose2d(-22, -11, Math.toRadians(3)),
                         new MecanumConstraints(new DriveConstraints(
                                 60, 80, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory ringToCollect = drive.trajectoryBuilder(shootCToRing.end())
-                .lineToLinearHeading(new Pose2d(-8, -10, Math.toRadians(5)),
+                .lineToLinearHeading(new Pose2d(-8, -11, Math.toRadians(3)),
                         new MecanumConstraints(new DriveConstraints(
-                                3, 15, 0.0,
+                                3.1, 15, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .addTemporalMarker(3.0, () -> {
                     intake.pushRingCycle(1);
@@ -265,7 +265,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .build();
 
         Trajectory collectToZoneC = drive.trajectoryBuilder(ringToCollect.end())
-                .splineToConstantHeading(new Vector2d(58, -20), Math.toRadians(0),
+                .splineTo(new Vector2d(58, -20), Math.toRadians(0),
                         new MecanumConstraints(new DriveConstraints(
                                 55, 40, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
@@ -547,14 +547,14 @@ public class StateMachineGulag extends LinearOpMode {
                     if(drive.isBusy()) {
                         time.reset();
                     }
-                    else if(!drive.isBusy() && time.milliseconds() <= 100) {
+                    else if(!drive.isBusy() && time.milliseconds() <= 250) {
                         arm.armOut();
 
                     }
-                    else if(!drive.isBusy() && time.milliseconds() <= 1900) {
+                    else if(!drive.isBusy() && time.milliseconds() <= 1750) {
                         intake.pushRingCycle(3);
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 1900) {
+                    if (!drive.isBusy() && time.milliseconds() >= 1750) {
                         currentState = State.SHOOT_C_TO_RING;
                         drive.followTrajectoryAsync(shootCToRing);
                     }
@@ -575,10 +575,10 @@ public class StateMachineGulag extends LinearOpMode {
                     if(drive.isBusy()) {
                         time.reset();
                     }
-                    if(!drive.isBusy() && time.milliseconds() <= 2900 && time.milliseconds() >= 1000) {
+                    if(!drive.isBusy() && time.milliseconds() <= 2600 && time.milliseconds() >= 1000) {
                         intake.pushRingCycle(3);
                     }
-                    else if (!drive.isBusy() && time.milliseconds() >= 2900) {
+                    else if (!drive.isBusy() && time.milliseconds() >= 2600) {
                         intake.nosucc();
                         currentState = State.COLLECT_TO_ZONE_C;
                         drive.followTrajectoryAsync(collectToZoneC);
@@ -589,13 +589,13 @@ public class StateMachineGulag extends LinearOpMode {
                     if(drive.isBusy()) {
                         time.reset();
                     }
-                    if(!drive.isBusy() && 150 >= time.milliseconds()) {
+                    if(!drive.isBusy() && 250 >= time.milliseconds()) {
                         arm.armDrop();
                     }
-                    if(!drive.isBusy() && 300 >= time.milliseconds() && time.milliseconds() >= 150) {
+                    if(!drive.isBusy() && 350 >= time.milliseconds() && time.milliseconds() >= 250) {
                         arm.release();
                     }
-                    if(!drive.isBusy() && 500 >= time.milliseconds() && time.milliseconds() >= 300) {
+                    if(!drive.isBusy() && 500 >= time.milliseconds() && time.milliseconds() >= 350) {
                         arm.armOut();
                     }
                     if (!drive.isBusy() && time.milliseconds() >= 500) {

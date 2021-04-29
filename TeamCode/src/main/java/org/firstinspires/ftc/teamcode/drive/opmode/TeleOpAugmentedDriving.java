@@ -78,6 +78,8 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
     // The location we want the bot to automatically go to when we press the B button
     private Pose2d drivePosition = new Pose2d(0, -7, Math.toRadians(0));
 
+    private Pose2d powerShotPosition = new Pose2d(0, 8, Math.toRadians(2));
+
     double shootTurn1 = Math.toRadians(9);
 
     double shootTurn2 = Math.toRadians(7);
@@ -113,6 +115,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
         long grabbedTime = System.currentTimeMillis();
         long positionChangedTime = System.currentTimeMillis();
+        long transferChangeTime = System.currentTimeMillis();
 
         //_________________________________________________________________________________//
 
@@ -196,7 +199,12 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
             // control to the automatic mode
             switch (currentMode) {
                 case DRIVER_CONTROL:
-                    if(gamepad1.left_trigger >= 0.05 || gamepad1.right_trigger >= 0.05) {
+                    if(gamepad1.x) {
+                        drive.setWeightedDrivePower(new Pose2d(0, 0, 0));
+                    }
+
+
+                    else if(gamepad1.left_trigger >= 0.05 || gamepad1.right_trigger >= 0.05) {
                         drive.setWeightedDrivePower(
                                 new Pose2d(
                                         -gamepad1.left_stick_y * 0.75 / 3,
@@ -220,7 +228,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 //                        drive.setPoseEstimate(poseEstimate.plus(new Pose2d(0, 0, -poseEstimate.getHeading())));
 //                    }
 
-                  if (gamepad1.left_stick_button) {
+                  if (gamepad1.b) {
                         // If the B button is pressed on gamepad1, we generate a lineTo()
                         // trajectory on the fly and follow it
                         // We switch the state to AUTOMATIC_CONTROL
@@ -246,6 +254,21 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                       intake.pushRingTeleop();
                       drive.residentSleeper(600);
                       intake.reverseRingTeleop();
+                  }
+                  else if(gamepad1.a) {
+                      Trajectory traj2 = drive.trajectoryBuilder(poseEstimate)
+                              .lineToLinearHeading(powerShotPosition,
+                                      new MecanumConstraints(new DriveConstraints(
+                                              50, 50, 0.0,
+                                              Math.toRadians(235.0), Math.toRadians(235.0), 0.0), 13.9))
+                              .build();
+
+                      targetVelocity = rpmToTicksPerSecond(powerShotVelo);
+                      isHighVelo = false;
+                      isLowVelo = true;
+                      drive.followTrajectoryAsync(traj2);
+
+                      currentMode = Mode.AUTOMATIC_CONTROL;
                   }
                     break;
 
@@ -362,6 +385,16 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                     }
                     break;
             }
+            long timeSinceTransferChange = System.currentTimeMillis() - transferChangeTime;
+            if(gamepad2.dpad_right && timeSinceTransferChange >= 300) {
+                intake.increaseTransferPos();
+                transferChangeTime = System.currentTimeMillis();
+            }
+            else if(gamepad2.dpad_left && timeSinceTransferChange >= 300) {
+                intake.decreaseTransferPos();
+                transferChangeTime = System.currentTimeMillis();
+            }
+
             intake.controls(gamepad1);
             arm.controls(gamepad2);
 
@@ -372,6 +405,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
             telemetry.addData("velocity", motorVelo);
             telemetry.addData("error", targetVelocity - motorVelo);
 
+            telemetry.addData("Transfer", intake.displayTransferPos());
             long timeSinceChange = System.currentTimeMillis() - time;
             if(timeSinceChange >= cooldownTime) {
                 if(gamepad2.right_bumper && isHighVelo) {

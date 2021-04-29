@@ -11,15 +11,21 @@ public class Intake {
     private Servo transfer;
 
     private long transferTime = System.currentTimeMillis();
+    private long posChangeTime = System.currentTimeMillis();
+    private int ringsShot = 0;
+
+    double reversePos = 0.42;
+    double pushPos = 0.3;
 
     public Intake(DcMotor intakeMotor, Servo transfer) {
         this.intakeMotor = intakeMotor;
         this.transfer = transfer;
-        transfer.setPosition(0.65);
+        transfer.setPosition(reversePos - 0.01);
     }
 
     public void controls(Gamepad gp) {
         long timeSinceTransfer = System.currentTimeMillis() - transferTime;
+        long timeSincePosChange = System.currentTimeMillis() - posChangeTime;
         if(gp.left_bumper) {
             unsucc();
         }
@@ -39,11 +45,19 @@ public class Intake {
         else if(gp.x && timeSinceTransfer >= 500) {
             pushRingCycleTeleop(3);
         }
-//        else stopRing();
+
+//        if(gp.dpad_up && timeSincePosChange >= 300) {
+//            increaseTransferPos();
+//            posChangeTime = System.currentTimeMillis();
+//        }
+//        else if(gp.dpad_down && timeSincePosChange >= 300) {
+//            decreaseTransferPos();
+//            posChangeTime = System.currentTimeMillis();
+//        }
     }
 
     public void succ() {
-        intakeMotor.setPower(-0.65);
+        intakeMotor.setPower(-0.8);
     }
 
     public void autoSucc(double power) {
@@ -51,7 +65,7 @@ public class Intake {
     }
 
     public void unsucc() {
-        intakeMotor.setPower(0.3);
+        intakeMotor.setPower(0.4);
     }
 
     public void nosucc() {
@@ -60,34 +74,48 @@ public class Intake {
 
 
     public void pushRing() {
-        transfer.setPosition(0.55);
+        transfer.setPosition(pushPos);
         //crServo.setPower(1.0);
     }
 
     public void pushRingTeleop() {
-        transfer.setPosition(0.55);
+        transfer.setPosition(pushPos);
     }
 
     public void reverseRing() {
-        transfer.setPosition(0.67);
+        transfer.setPosition(reversePos);
         //crServo.setPower(-0.5);
     }
 
     public void reverseRingTeleop() {
-        transfer.setPosition(0.68);
+        transfer.setPosition(reversePos + 0.01);
     };
+
+    public void increaseTransferPos() {
+        pushPos += 0.015;
+        reversePos += 0.015;
+    }
+
+    public void decreaseTransferPos() {
+        pushPos -= 0.015;
+        reversePos -= 0.015;
+    }
+
+    public double displayTransferPos() {
+        return transfer.getPosition();
+    }
 
     public void pushRingCycle(int cycles) {
         long startTime = System.currentTimeMillis();
         long elapsedTime = System.currentTimeMillis();
         while(cycles > 0) {
             pushRing();
-            while (elapsedTime - startTime <= 325) {
+            while (elapsedTime - startTime <= 300) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
             reverseRing();
-            while (elapsedTime - startTime <= 325) {
+            while (elapsedTime - startTime <= 250) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
@@ -100,12 +128,12 @@ public class Intake {
         long elapsedTime = System.currentTimeMillis();
         while(cycles > 0) {
             pushRingTeleop();
-            while (elapsedTime - startTime <= 125) {
+            while (elapsedTime - startTime <= 150) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
             reverseRingTeleop();
-            while (elapsedTime - startTime <= 125) {
+            while (elapsedTime - startTime <= 150) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();

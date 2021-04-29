@@ -50,21 +50,21 @@ public class ArmNoEncoder {
         if(timeSinceArmChange >= cooldownTime) {
             if (gp.a) {
                 armTime = System.currentTimeMillis();
-                armRun(55, 0.4, 0.15);
+                armRun(55, 0.5, 0.25);
                 armRest = true;
                 armUp = false;
                 armGrab = false;
             }
             else if (gp.b) {
                 armTime = System.currentTimeMillis();
-                armRun(80, 0.5, 0.1);
+                armRun(90, 0.5, 0.1);
                 armRest = false;
                 armUp = true;
                 armGrab = false;
             }
             else if (gp.y) {
                 armTime = System.currentTimeMillis();
-                armRun(170, 0.35, 0.1);
+                armRun(175, 0.35, 0.1);
                 armRest = false;
                 armUp = false;
                 armGrab = true;
@@ -145,7 +145,7 @@ public class ArmNoEncoder {
     }
 
     public void armOut() {
-        armRun(130, 0.5, 0.2);
+        armRun(125, 0.5, 0.25);
         armRestAuto = false;
         armUpAuto = false;
         armOutAuto = true;
@@ -154,7 +154,7 @@ public class ArmNoEncoder {
     }
 
     public void armOutDown() {
-        armRun(90, 0.5, 0.2);
+        armRun(75, 0.5, 0.2);
         armRestAuto = false;
         armUpAuto = false;
         armOutAuto = false;
@@ -164,7 +164,7 @@ public class ArmNoEncoder {
 
 
     public void armDrop() {
-        armRun(170, 0.3, 0.1);
+        armRun(175, 0.3, 0.1);
         armRestAuto = false;
         armUpAuto = false;
         armOutAuto = false;
