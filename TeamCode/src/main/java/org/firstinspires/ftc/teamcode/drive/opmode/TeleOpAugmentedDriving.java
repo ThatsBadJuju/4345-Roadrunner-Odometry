@@ -148,7 +148,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
 
         // Insert whatever other initialization stuff you do here
         //4000 = power shot, 4175 = auto
-        double highGoalVelo = 5150;
+        double highGoalVelo = 5250;
         double powerShotVelo = 4000;
         double off = 0;
         double targetVelocity = rpmToTicksPerSecond(highGoalVelo);
@@ -236,7 +236,7 @@ public class TeleOpAugmentedDriving extends LinearOpMode {
                         Trajectory traj1 = drive.trajectoryBuilder(poseEstimate)
                                 .lineToLinearHeading(drivePosition,
                       new MecanumConstraints(new DriveConstraints(
-                              55, 55, 0.0,
+                              50, 45, 0.0,
                               Math.toRadians(235.0), Math.toRadians(235.0), 0.0), 13.9))
                                 .build();
 

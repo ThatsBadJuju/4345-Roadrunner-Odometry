@@ -14,13 +14,13 @@ public class Intake {
     private long posChangeTime = System.currentTimeMillis();
     private int ringsShot = 0;
 
-    double reversePos = 0.42;
-    double pushPos = 0.3;
+    double reversePos = 0.41;
+    double pushPos = 0.29;
 
     public Intake(DcMotor intakeMotor, Servo transfer) {
         this.intakeMotor = intakeMotor;
         this.transfer = transfer;
-        transfer.setPosition(reversePos - 0.01);
+        transfer.setPosition(reversePos);
     }
 
     public void controls(Gamepad gp) {
@@ -65,7 +65,7 @@ public class Intake {
     }
 
     public void unsucc() {
-        intakeMotor.setPower(0.4);
+        intakeMotor.setPower(0.8);
     }
 
     public void nosucc() {
@@ -83,7 +83,7 @@ public class Intake {
     }
 
     public void reverseRing() {
-        transfer.setPosition(reversePos);
+        transfer.setPosition(reversePos + 0.01);
         //crServo.setPower(-0.5);
     }
 
@@ -128,12 +128,12 @@ public class Intake {
         long elapsedTime = System.currentTimeMillis();
         while(cycles > 0) {
             pushRingTeleop();
-            while (elapsedTime - startTime <= 150) {
+            while (elapsedTime - startTime <= 200) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();
             reverseRingTeleop();
-            while (elapsedTime - startTime <= 150) {
+            while (elapsedTime - startTime <= 200) {
                 elapsedTime = System.currentTimeMillis();
             }
             startTime = System.currentTimeMillis();

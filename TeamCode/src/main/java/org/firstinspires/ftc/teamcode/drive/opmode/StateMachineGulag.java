@@ -77,7 +77,7 @@ public class StateMachineGulag extends LinearOpMode {
     public Camera camera;
 
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(50, 0, 10, 11.9);
-    double farGoalVelo = rpmToTicksPerSecond(4150);
+    double farGoalVelo = rpmToTicksPerSecond(4125);
     double closeGoalVelo = rpmToTicksPerSecond(4600);
     double powerShotVelo = rpmToTicksPerSecond(4000);
 
@@ -211,7 +211,7 @@ public class StateMachineGulag extends LinearOpMode {
                 .build();
 
         Trajectory wobbleToRing = drive.trajectoryBuilder(downToWobble.end())
-                .lineToLinearHeading(new Pose2d(-28, -14, Math.toRadians(9)),
+                .lineToLinearHeading(new Pose2d(-28, -14, Math.toRadians(7.5)),
                         new MecanumConstraints(new DriveConstraints(
                                 16, 20, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
@@ -237,7 +237,7 @@ public class StateMachineGulag extends LinearOpMode {
 
 
         Trajectory startToShootC = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-40, -10, Math.toRadians(3)),
+                .lineToLinearHeading(new Pose2d(-40, -10, Math.toRadians(4)),
                         new MecanumConstraints(new DriveConstraints(
                                 40, 30, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
@@ -247,18 +247,18 @@ public class StateMachineGulag extends LinearOpMode {
                 .build();
 
         Trajectory shootCToRing = drive.trajectoryBuilder(startToShootC.end())
-                .lineToLinearHeading(new Pose2d(-22, -11, Math.toRadians(3)),
+                .lineToLinearHeading(new Pose2d(-22, -10, Math.toRadians(4)),
                         new MecanumConstraints(new DriveConstraints(
                                 60, 80, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
                 .build();
 
         Trajectory ringToCollect = drive.trajectoryBuilder(shootCToRing.end())
-                .lineToLinearHeading(new Pose2d(-8, -11, Math.toRadians(3)),
+                .lineToLinearHeading(new Pose2d(-7.5, -10, Math.toRadians(4)),
                         new MecanumConstraints(new DriveConstraints(
-                                3.1, 15, 0.0,
+                                3.25, 15, 0.0,
                                 Math.toRadians(180.0), Math.toRadians(180.0), 0.0), 13.65))
-                .addTemporalMarker(3.0, () -> {
+                .addTemporalMarker(2.75, () -> {
                     intake.pushRingCycle(1);
                 })
 
@@ -346,13 +346,12 @@ public class StateMachineGulag extends LinearOpMode {
                     isPowerShot = true;
                     if(drive.isBusy()) {
                         time.reset();
-                        arm.armOutDown();
-                    }
-                    else if(!drive.isBusy() && time.milliseconds() <= 200) {
-                        intake.pushRing();
                         arm.armOut();
                     }
-                    if (!drive.isBusy() && time.milliseconds() >= 600) {
+                    else if(!drive.isBusy() && time.milliseconds() <= 400) {
+                        intake.pushRing();
+                    }
+                    if (!drive.isBusy() && time.milliseconds() >= 800) {
                         intake.reverseRing();
                         currentState = State.SHOOT_TURN_1;
                         drive.turnAsync(shootTurn1);
