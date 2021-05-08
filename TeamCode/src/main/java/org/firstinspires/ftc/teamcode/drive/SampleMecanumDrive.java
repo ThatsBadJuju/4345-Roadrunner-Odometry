@@ -23,6 +23,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -63,6 +64,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
+    public static double ANGLE_CONSTANT = 0.9867;
+    public static double MAX_VOLTAGE = 3.225;
 
     public enum Mode {
         IDLE,
@@ -87,8 +90,12 @@ public class SampleMecanumDrive extends MecanumDrive {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
     private BNO055IMU imu;
+    private AnalogInput gyro;
 
     private Pose2d lastPoseOnTurn;
+
+    private int gyroVoltageChange = 0; //positive = right, negative = left, viewed from behind
+    private double lastGyroVoltage;
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -120,6 +127,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 //        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 //        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
 //        imu.initialize(parameters);
+        gyro = hardwareMap.analogInput.get("gyro");
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
@@ -154,7 +162,9 @@ public class SampleMecanumDrive extends MecanumDrive {
 
 
         // TODO: if desired, use setLocalizer() to change the localization method
-        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+        setLocalizer(new TwoWheelTrackingLocalizer(hardwareMap, this));
+
+        lastGyroVoltage = gyro.getVoltage();
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -379,7 +389,29 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return 0;
+        double volts = gyro.getVoltage();
+        if((volts - lastGyroVoltage) > 2) {     //turning to the left
+            gyroVoltageChange--;
+        }
+        else if((volts - lastGyroVoltage) < -2 ) {  //turning to the right
+            gyroVoltageChange++;
+        }
+        lastGyroVoltage = volts;
+
+        double summedAngle = (volts + gyroVoltageChange * MAX_VOLTAGE) * 360 / MAX_VOLTAGE * ANGLE_CONSTANT;
+
+        return -Math.toRadians(summedAngle % 360);
+    }
+
+    public double getVoltage() {
+        return gyro.getVoltage();
+    }
+    public double getAngle() {
+        return Math.toDegrees(getRawExternalHeading());
+    }
+
+    public double getTurns() {
+        return gyroVoltageChange;
     }
 
     public void residentSleeper(int ms) {
